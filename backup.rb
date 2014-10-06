@@ -17,16 +17,16 @@ class Backup
   end
 
   def read_history(name, version)
-    rows = CSV.read(file_name(name, version)).map do |date, duration, is_success|
-      [Time.at(date.to_i), duration.to_i, is_success]
+    rows = CSV.read(file_name(name, version)).map do |date, duration, status|
+      [Time.at(date.to_i), duration.to_i, status]
     end
     rows.sort {|x, y| - (x[0] <=> y[0])}
   end
 
-  def add_bench(name, version, duration, is_success)
+  def add_bench(name, version, duration, status)
     FileUtils.mkdir_p(File.join(@folder, name))
     CSV.open(file_name(name, version), "a") do |csv|
-      csv << [Time.now.to_i, duration, is_success]
+      csv << [Time.now.to_i, duration, status]
     end
   end
 

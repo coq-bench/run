@@ -26,7 +26,7 @@ RUN opam repo add coq opam-coq-repo
 ADD . /root/coq-bench
 WORKDIR /root/coq-bench
 
-RUN ruby generate_csv.rb
-RUN ruby generate_html.rb
+# RUN ruby generate_csv.rb
+# RUN ruby generate_html.rb
 
 CMD ruby -run -e httpd . -p 80
