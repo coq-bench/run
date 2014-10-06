@@ -9,7 +9,7 @@ class Backup
   def packages
     Dir.glob(File.join(@folder, "*")).map do |name|
       [File.basename(name),
-        Dir.glob(File.join(@folder, "*", "*")).map do |path|
+        Dir.glob(File.join(name, "*")).map do |path|
           File.basename(path, ".csv")
         end]
     end
@@ -17,7 +17,7 @@ class Backup
 
   def read_history(name, version)
     CSV.read(file_name(name, version)).map do |date, duration, is_success|
-      [Time.at(date.to_i), duration.to_i, (is_success == "OK")]
+      [Time.at(date.to_i), duration.to_i, is_success]
     end
   end
 
