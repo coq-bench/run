@@ -43,6 +43,7 @@
               <thead>
                 <tr>
                   <td>Date</td>
+                  <td>Time</td>
                   <td>Duration</td>
                   <td>Status</td>
                 </tr>
@@ -50,7 +51,8 @@
               <tbody>
                 <% for date, duration, is_success in backup.read_history(name, version) do %>
                 <tr>
-                  <td><%= h(date) %></td>
+                  <td><%= h(date.strftime("%Y-%m-%d")) %></td>
+                  <td><%= h(date.strftime("%T")) %></td>
                   <td><%= h(duration) %> s</td>
                   <td class="<%= is_success == "OK" ? "success" : "danger" %>"><%= h(is_success) %></td>
                 </tr>

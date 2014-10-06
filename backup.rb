@@ -1,5 +1,6 @@
 # Read and update the backup of benchs
 require 'csv'
+require 'fileutils'
 
 class Backup
   def initialize(folder)
@@ -20,6 +21,13 @@ class Backup
       [Time.at(date.to_i), duration.to_i, is_success]
     end
     rows.sort {|x, y| - (x[0] <=> y[0])}
+  end
+
+  def add_bench(name, version, duration, is_success)
+    FileUtils.mkdir_p(File.join(@folder, name))
+    CSV.open(file_name(name, version), "a") do |csv|
+      csv << [Time.now.to_i, duration, is_success]
+    end
   end
 
 private
