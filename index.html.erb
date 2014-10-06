@@ -6,7 +6,7 @@
     <title>Coq bench</title>
 
     <!-- Bootstrap -->
-    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -38,21 +38,17 @@
         <div class="row">
           <div class="col-md-1"></div>
           <div class="col-md-10">
-            <h1><%= h(name) %> <small><%= h(version) %></small></h1>
+            <h1>Coq bench</h1>
             <table class="table table-striped text-center">
-              <thead>
-                <tr>
-                  <td>Date</td>
-                  <td>Duration</td>
-                  <td>Status</td>
-                </tr>
-              </thead>
               <tbody>
-                <% for date, duration, is_success in backup.read_history(name, version) do %>
+                <% for name, versions in backup.packages %>
                 <tr>
-                  <td><%= h(date) %></td>
-                  <td><%= h(duration) %> s</td>
-                  <td class="<%= is_success == "OK" ? "success" : "danger" %>"><%= h(is_success) %></td>
+                  <td><%= h(name) %></td>
+                  <% for version in versions.sort %>
+                    <% is_success = backup.read_history(name, version)[0] %>
+                    <% css_class = is_success.nil? ? "warning" : (is_success[2] == "OK" ? "success" : "danger") %>
+                    <td class="<%= css_class %>"><a href="<%= "history/#{u(name)}/#{u(version)}.html" %>"><%= h(version) %></a></td>
+                  <% end %>
                 </tr>
                 <% end %>
               </tbody>
@@ -72,6 +68,6 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="../../js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
   </body>
 </html>

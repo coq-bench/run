@@ -16,9 +16,10 @@ class Backup
   end
 
   def read_history(name, version)
-    CSV.read(file_name(name, version)).map do |date, duration, is_success|
+    rows = CSV.read(file_name(name, version)).map do |date, duration, is_success|
       [Time.at(date.to_i), duration.to_i, is_success]
     end
+    rows.sort {|x, y| - (x[0] <=> y[0])}
   end
 
 private
