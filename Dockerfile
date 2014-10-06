@@ -14,8 +14,15 @@ ENV OPAMJOBS 4
 # Coq
 RUN opam install -y coq
 
+# Ruby
+RUN apt-get install -y ruby
+
 # The Coq repository
 WORKDIR /root
 RUN git clone https://github.com/coq/opam-coq-repo.git
 RUN opam repo add coq opam-coq-repo
 
+# Run the bench
+ADD . /root/coq-bench
+WORKDIR /root/coq-bench
+CMD ruby bench.rb
