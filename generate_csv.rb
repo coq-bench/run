@@ -1,19 +1,26 @@
+# Update the CSV backup with a new bench suite
 require_relative 'backup'
 
 backup = Backup.new("csv")
 
+# The package list, computed from the repository directory
 packages = Dir.glob("../opam-coq-repo/packages/*/*").map do |path|
   File.basename(path)
 end
 
-# Compute the results
+# Bench each package
 for package in packages.sort do
-  puts "\e[1;34m#{package}:\e[0m"
+  name, version = package.split(".", 2)
+  puts "\e[1;34m#{name} #{version}:\e[0m"
+
+  # Remove a previously installed version, if any
   puts "---= Removing =---"
-  if system("opam remove -y #{package}") then
+  if system("opam remove -y #{name}") then
+    # Install only the dependencies
     puts "---= Dependencies =---"
     is_success_dependencies = system("opam install -y --deps-only #{package}")
     if is_success_dependencies then
+      # Install the package itself, and measure total install duration
       puts "---= Package =---"
       starting_time = Time.now
       is_success = system("opam install -y #{package}")
@@ -25,7 +32,7 @@ for package in packages.sort do
       duration = 0
       puts
     end
-    name, version = package.split(".", 2)
+    # Add the result to the CSV backup
     status = is_success_dependencies ? (is_success ? "OK" : "Error") : "Deps error"
     backup.add_bench(name, version, duration, status)
   else

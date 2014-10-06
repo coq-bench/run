@@ -1,4 +1,4 @@
-# Read and update the backup of benchs
+# Read and update the CSV backup of benchs
 require 'csv'
 require 'fileutils'
 
@@ -8,9 +8,9 @@ class Backup
   end
 
   def packages
-    (Dir.glob(File.join(@folder, "*")).map do |name|
+    (Dir.glob("#{@folder}/*").map do |name|
       [File.basename(name),
-        (Dir.glob(File.join(name, "*")).map do |path|
+        (Dir.glob("#{name}/*").map do |path|
           File.basename(path, ".csv")
         end).sort]
     end).sort {|x, y| x[0] <=> y[0]}
@@ -24,7 +24,7 @@ class Backup
   end
 
   def add_bench(name, version, duration, status)
-    FileUtils.mkdir_p(File.join(@folder, name))
+    FileUtils.mkdir_p("#{@folder}/#{name}")
     CSV.open(file_name(name, version), "a") do |csv|
       csv << [Time.now.to_i, duration, status]
     end
@@ -32,6 +32,6 @@ class Backup
 
 private
   def file_name(name, version)
-    File.join(@folder, name, "#{version}.csv")
+    "#{@folder}/#{name}/#{version}.csv"
   end
 end
