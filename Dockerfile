@@ -23,7 +23,7 @@ RUN git clone https://github.com/coq/opam-coq-repo.git
 RUN opam repo add coq opam-coq-repo
 
 # Run the bench
-ADD . /root/coq-bench
+RUN mkdir /root/coq-bench
 WORKDIR /root/coq-bench
 
 # RUN ruby generate_csv.rb

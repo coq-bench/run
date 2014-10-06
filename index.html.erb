@@ -44,7 +44,7 @@
                 <% for name, versions in backup.packages %>
                 <tr>
                   <td><%= h(name) %></td>
-                  <% for version in versions.sort %>
+                  <% for version in versions %>
                     <% bench = backup.read_history(name, version)[0] %>
                     <% css_class = bench.nil? ? "warning" : (bench[2] == "OK" ? "success" : "danger") %>
                   <td class="<%= css_class %>"><a href="<%= "history/#{u(name)}/#{u(version)}.html" %>"><%= h(version) %></a></td>

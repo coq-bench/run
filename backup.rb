@@ -8,12 +8,12 @@ class Backup
   end
 
   def packages
-    Dir.glob(File.join(@folder, "*")).map do |name|
+    (Dir.glob(File.join(@folder, "*")).map do |name|
       [File.basename(name),
-        Dir.glob(File.join(name, "*")).map do |path|
+        (Dir.glob(File.join(name, "*")).map do |path|
           File.basename(path, ".csv")
-        end]
-    end
+        end).sort]
+    end).sort {|x, y| x[0] <=> y[0]}
   end
 
   def read_history(name, version)

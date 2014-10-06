@@ -1,3 +1,7 @@
+csv/
+history/
+index.html
+
 *.gem
 *.rbc
 /.config
