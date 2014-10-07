@@ -1,6 +1,5 @@
 csv/
-history/
-index.html
+html/
 
 *.gem
 *.rbc

@@ -9,11 +9,15 @@ class Backup
 
   def packages
     (Dir.glob("#{@folder}/*").map do |name|
-      [File.basename(name),
-        (Dir.glob("#{name}/*").map do |path|
-          File.basename(path, ".csv")
-        end).sort]
-    end).sort {|x, y| x[0] <=> y[0]}
+      if File.directory?(name) then
+        [File.basename(name),
+          (Dir.glob("#{name}/*").map do |path|
+            File.basename(path, ".csv")
+          end).sort]
+      else
+        nil
+      end
+    end).find_all {|x| ! x.nil?}.sort {|x, y| x[0] <=> y[0]}
   end
 
   def read_history(name, version)
