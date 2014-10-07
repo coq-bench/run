@@ -5,4 +5,4 @@ website:
 	ruby generate_html.rb
 
 server:
-	ruby -run -e httpd html/ -p 80
+	ruby -run -e httpd html/ -p 8080
