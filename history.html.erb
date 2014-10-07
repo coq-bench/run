@@ -56,7 +56,7 @@
                 <tr>
                   <td><%= h(date.strftime("%Y-%m-%d")) %></td>
                   <td><%= h(date.strftime("%T")) %></td>
-                  <td><%= h(duration) %> s</td>
+                  <td><%= h(duration.duration) %></td>
                   <td class="<%= status == "OK" ? "success" : "danger" %>"><%= h(status) %></td>
                 </tr>
                 <% end %>
