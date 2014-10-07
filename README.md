@@ -12,7 +12,7 @@ The bench suite runs in an isolated environment using [Docker](https://www.docke
     docker build --tag=coq-bench .
     docker run -ti coq-bench
 
-Run the benchmarks and update the results in the `csv/` folder (will take time):
+Inside the container, run the benchmarks and update the results in the `csv/` folder (will take time):
 
     make bench
 
