@@ -22,6 +22,6 @@ WORKDIR /root
 RUN git clone https://github.com/coq/opam-coq-repo.git
 RUN opam repo add coq opam-coq-repo
 
-# Run the bench
+# Initialize the bench folder
 ADD . /root/coq-bench
 WORKDIR /root/coq-bench
