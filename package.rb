@@ -1,19 +1,6 @@
-# Handle interactions with OPAM.
+# Handle OPAM actions on a package.
 
 class Package
-  # The list of versions for a package name.
-  def Package.versions(name)
-    `opam info --field=available-version,available-versions #{name}`.split(":")[-1].split(",").map {|version| version.strip}
-  end
-
-  # The list of all Coq packages.
-  def Package.all
-    `opam list --unavailable --short --sort "coq-*"`.split(" ").map do |name|
-      name = name.strip
-      Package.versions(name).map {|version| Package.new(name, version)}
-    end.flatten
-  end
-
   attr_reader :name, :version
 
   def initialize(name, version)
@@ -27,16 +14,7 @@ class Package
 
   # The repository of the package. Can be `:stable`, `:testing` or `:unstable`.
   def repository
-    case `opam info --field=repository #{self}`.strip
-    when "coq"
-      :stable
-    when "coq-testing"
-      :testing
-    when "coq-unstable"
-      :unstable
-    else
-      raise "unknown repository"
-    end
+    `opam info --field=repository #{self}`.strip.to_sym
   end
 
   # The list of dependencies to install before the package.
