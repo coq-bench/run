@@ -3,14 +3,19 @@ MAINTAINER Guillaume Claret
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y gcc make git
+RUN apt-get install -y curl ocaml
+RUN apt-get install -y ruby
 
-# Opam
-RUN apt-get install -y opam
+# Opam 1.2.0-rc4
+WORKDIR /root
+RUN curl -L https://github.com/ocaml/opam/archive/1.2.0-rc4.tar.gz |tar -xz
+WORKDIR opam-1.2.0-rc4
+RUN ./configure
+RUN make lib-ext
+RUN make
+RUN make install
 RUN opam init
 ENV OPAMJOBS 6
-
-# Ruby
-RUN apt-get install -y ruby
 
 # The Coq repositories
 RUN opam repo add coq https://github.com/coq/opam-coq-repo.git

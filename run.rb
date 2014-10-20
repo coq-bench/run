@@ -15,7 +15,7 @@ class Package
   end
 
   def Package.all
-    `opam list --all --short --sort "coq-*"`.split(" ").map do |name|
+    `opam list --unavailable --short --sort "coq-*"`.split(" ").map do |name|
       name = name.strip
       [name, Package.versions(name)]
     end
@@ -26,8 +26,12 @@ class Package
     @version = version
   end
 
+  def to_s
+    "#{@name}.#{@version}"
+  end
+
   def repository
-    case `opam info --field=repository #{@name}.#{@version}`.strip
+    case `opam info --field=repository #{self}`.strip
     when "coq"
       :stable
     when "coq-testing"
@@ -38,6 +42,15 @@ class Package
       raise "unknown repository"
     end
   end
+
+  def dependencies
+    `opam list --unavailable --sort --required-by=#{self} "coq-*"`.split("\n")
+      .find_all {|line| line[0] != "#" && line != "No packages found."}
+      .map do |dependency|
+        name, version = dependency.split(" ")[0..1].map {|s| s.strip}
+        Package.new(name, version)
+      end
+  end
 end
 
 # Coq versions
@@ -47,8 +60,11 @@ p Package.versions("coq")
 packages = Package.all.map do |name, versions|
     versions.map {|version| Package.new(name, version)}
   end.flatten
-p packages
-p packages.map {|package| package.repository}
+# p packages
+# p packages.map {|package| package.repository}
+for package in packages do
+  puts "#{package}: #{package.dependencies}"
+end
 
 exit(0)
 
