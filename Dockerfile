@@ -9,7 +9,7 @@ RUN apt-get install -y opam
 RUN opam init
 
 # Compile with -j4
-ENV OPAMJOBS 4
+ENV OPAMJOBS 6
 
 # Coq
 RUN opam install -y coq
@@ -23,5 +23,6 @@ RUN git clone https://github.com/coq/opam-coq-repo.git
 RUN opam repo add coq opam-coq-repo
 
 # Initialize the bench folder
-ADD . /root/coq-bench
-WORKDIR /root/coq-bench
+ADD . /root/run
+WORKDIR /root/run
+RUN git clone https://github.com/coq-bench/database.git
