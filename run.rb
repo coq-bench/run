@@ -20,18 +20,39 @@ class Package
       [name, Package.versions(name)]
     end
   end
+
+  def initialize(name, version)
+    @name = name
+    @version = version
+  end
+
+  def repository
+    case `opam info --field=repository #{@name}.#{@version}`.strip
+    when "coq"
+      :stable
+    when "coq-testing"
+      :testing
+    when "coq-unstable"
+      :unstable
+    else
+      raise "unknown repository"
+    end
+  end
 end
 
 # Coq versions
 p Package.versions("coq")
 
-# Stable packages
-p Package.all
-
+# Packages
+packages = Package.all.map do |name, versions|
+    versions.map {|version| Package.new(name, version)}
+  end.flatten
+p packages
+p packages.map {|package| package.repository}
 
 exit(0)
 
-# database = Database.new("csv")
+# database = Database.new("database")
 
 # The package list, computed from the repository directory
 packages = Dir.glob("../opam-coq-repo/packages/*/*").map do |path|
