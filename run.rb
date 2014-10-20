@@ -3,15 +3,31 @@ require_relative 'database'
 
 # Architecture
 architecture = {
-  :os => `uname -s`.strip,
-  :hardware => `uname -m`.strip,
-  :ocaml => `ocamlc -version`.strip,
-  :opam => `opam --version`.strip }
+  os: `uname -s`.strip,
+  hardware: `uname -m`.strip,
+  ocaml: `ocamlc -version`.strip,
+  opam: `opam --version`.strip }
 p architecture
 
+class Package
+  def Package.versions(name)
+    `opam info --field=available-version,available-versions #{name}`.split(":")[-1].split(",").map {|version| version.strip}
+  end
+
+  def Package.all
+    `opam list --all --short --sort "coq-*"`.split(" ").map do |name|
+      name = name.strip
+      [name, Package.versions(name)]
+    end
+  end
+end
+
 # Coq versions
-coqs = `opam info --field=available-versions coq`.split(",").map {|coq| coq.strip}
-p coqs
+p Package.versions("coq")
+
+# Stable packages
+p Package.all
+
 
 exit(0)
 
