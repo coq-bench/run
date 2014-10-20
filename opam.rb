@@ -37,17 +37,17 @@ module Opam
   end
 
   # Uninstall a package.
-  def uninstall(package)
+  def Opam.uninstall(package)
     system("opam remove -y #{package.name}")
   end
 
   # Install the dependencies of a package.
-  def install_dependencies(package)
+  def Opam.install_dependencies(package)
     system("opam install -y --deps-only #{package}")
   end
 
   # Install a package.
-  def install(package)
+  def Opam.install(package)
     system("opam install -y #{package}")
   end
 end

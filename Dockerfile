@@ -18,6 +18,8 @@ RUN make install
 RUN opam init
 ENV OPAMJOBS 6
 
+RUN opam install -y coq.8.3
+
 # Initialize the bench folder
 ADD . /root/run
 WORKDIR /root/run
