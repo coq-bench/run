@@ -10,16 +10,20 @@ architecture = {
 p architecture
 
 class Package
+  # The list of versions for a package name.
   def Package.versions(name)
     `opam info --field=available-version,available-versions #{name}`.split(":")[-1].split(",").map {|version| version.strip}
   end
 
+  # The list of all Coq packages.
   def Package.all
     `opam list --unavailable --short --sort "coq-*"`.split(" ").map do |name|
       name = name.strip
-      [name, Package.versions(name)]
-    end
+      Package.versions(name).map {|version| Package.new(name, version)}
+    end.flatten
   end
+
+  attr_reader :name, :version
 
   def initialize(name, version)
     @name = name
@@ -30,6 +34,7 @@ class Package
     "#{@name}.#{@version}"
   end
 
+  # The repository of the package. Can be `:stable`, `:testing` or `:unstable`.
   def repository
     case `opam info --field=repository #{self}`.strip
     when "coq"
@@ -43,11 +48,31 @@ class Package
     end
   end
 
-  def dependencies
-    `opam list --unavailable --sort --required-by=#{self} "coq-*"`.split("\n")
-      .find_all {|line| line[0] != "#" && line != "No packages found."}
-      .map do |dependency|
-        name, version = dependency.split(" ")[0..1].map {|s| s.strip}
+  # # The list of dependencies with a specific pattern.
+  # def dependencies_with_pattern(pattern)
+  #   `opam list --unavailable --sort --required-by=#{self} --recursive #{pattern.inspect}`.split("\n")
+  #     .find_all {|line| line[0] != "#" && line != "No packages found."}
+  #     .map do |dependency|
+  #       name, version = dependency.split(" ")[0..1].map {|s| s.strip}
+  #       Package.new(name, version)
+  #     end
+  # end
+
+  # # The Coq version of the package.
+  # def coq
+  #   dependencies_with_pattern("coq")
+  # end
+
+  # # The list of dependencies which are Coq packages.
+  # def dependencies
+  #   dependencies_with_pattern("coq-*")
+  # end
+
+  def dependencies_to_install
+    `opam install --show-actions #{self}`.split("\n")
+      .find_all {|line| line.include?("[required by ")}
+      .map do |line|
+        name, version = line.match(/ - install   (\S*)/)[1].split(".", 2)
         Package.new(name, version)
       end
   end
@@ -57,13 +82,35 @@ end
 p Package.versions("coq")
 
 # Packages
-packages = Package.all.map do |name, versions|
-    versions.map {|version| Package.new(name, version)}
-  end.flatten
-# p packages
-# p packages.map {|package| package.repository}
-for package in packages do
-  puts "#{package}: #{package.dependencies}"
+packages = {}
+for package in Package.all do
+  packages[package] = nil
+end
+puts packages
+puts
+# for package in packages do
+#   puts "#{package}: #{package.coq}"
+# end
+# puts
+# for package in packages do
+#   puts "#{package}: #{package.dependencies}"
+# end
+# puts
+# for package, _ in packages do
+#   puts "#{package}: #{package.dependencies_to_install}"
+# end
+
+def bench(package)
+  for dependency in package.dependencies_to_install do
+    if dependency.name.match(/\Acoq-/) then
+      bench(dependency)
+    end
+  end
+  puts "benching #{package}"
+end
+
+for package, _ in packages do
+  bench(package)
 end
 
 exit(0)

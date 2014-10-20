@@ -3,6 +3,7 @@ MAINTAINER Guillaume Claret
 
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y gcc make git
+RUN apt-get install -y libgtksourceview2.0-dev m4
 RUN apt-get install -y curl ocaml
 RUN apt-get install -y ruby
 
