@@ -7,22 +7,16 @@ RUN apt-get install -y gcc make git
 # Opam
 RUN apt-get install -y opam
 RUN opam init
-
-# Compile with -j4
 ENV OPAMJOBS 6
-
-# Coq
-RUN opam install -y coq
 
 # Ruby
 RUN apt-get install -y ruby
 
-# The Coq repository
-WORKDIR /root
-RUN git clone https://github.com/coq/opam-coq-repo.git
-RUN opam repo add coq opam-coq-repo
+# The Coq repositories
+RUN opam repo add coq https://github.com/coq/opam-coq-repo.git
+RUN opam repo add coq-testing https://github.com/coq/opam-coq-repo-testing.git
+RUN opam repo add coq-unstable https://github.com/coq/opam-coq-repo-unstable.git
 
 # Initialize the bench folder
 ADD . /root/run
 WORKDIR /root/run
-RUN git clone https://github.com/coq-bench/database.git

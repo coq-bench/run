@@ -1,7 +1,21 @@
 # Update the CSV database with a new bench suite
 require_relative 'database'
 
-database = Database.new("csv")
+# Architecture
+architecture = {
+  :os => `uname -s`.strip,
+  :hardware => `uname -m`.strip,
+  :ocaml => `ocamlc -version`.strip,
+  :opam => `opam --version`.strip }
+p architecture
+
+# Coq versions
+coqs = `opam info --field=available-versions coq`.split(",").map {|coq| coq.strip}
+p coqs
+
+exit(0)
+
+# database = Database.new("csv")
 
 # The package list, computed from the repository directory
 packages = Dir.glob("../opam-coq-repo/packages/*/*").map do |path|
