@@ -16,10 +16,10 @@ module Opam
 
   # The list of all Coq packages.
   def Opam.all_packages
-    `opam list --unavailable --short --sort "coq-*"`.split(" ").map do |name|
+    `opam list --all --short --sort "coq-*"`.split(" ").map do |name|
       name = name.strip
       Opam.versions(name).map {|version| Package.new(name, version)}
-    end.flatten
+    end.flatten.reverse
   end
 
   # Add a list of repositories.
@@ -34,20 +34,5 @@ module Opam
     for repository in repositories do
       system("opam repo remove #{repository}")
     end
-  end
-
-  # Uninstall a package.
-  def Opam.uninstall(package)
-    system("opam remove -y #{package.name}")
-  end
-
-  # Install the dependencies of a package.
-  def Opam.install_dependencies(package)
-    system("opam install -y --deps-only #{package}")
-  end
-
-  # Install a package.
-  def Opam.install(package)
-    system("opam install -y #{package}")
   end
 end

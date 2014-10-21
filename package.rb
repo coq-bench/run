@@ -1,4 +1,6 @@
 # Handle OPAM actions on a package.
+require 'json'
+require 'open3'
 
 class Package
   attr_reader :name, :version
@@ -12,25 +14,50 @@ class Package
     "#{@name}.#{@version}"
   end
 
-  # The repository of the package. Can be `:stable`, `:testing` or `:unstable`.
-  def repository
-    `opam info --field=repository #{self}`.strip.to_sym
-  end
-
-  # Test if a package can be installed with the current configuration.
-  def is_installable?
-    system("opam install --dry-run #{self}") == 0
-  end
-
-  # The list of dependencies to install before the package.
+  # The list of dependencies to install before the package, `nil` if the package
+  # cannot be installed.
   def dependencies_to_install
-    # p `opam install --show-actions #{self}`.split("\n")
-    #   .find_all {|line| line.include?("[required by ")}
-    `opam install --show-actions #{self}`.split("\n")
-      .find_all {|line| line.include?("[required by ")}
-      .map do |line|
-        name, version = line.match(/ - \w+   (\S*)/)[1].split(".", 2)
-        Package.new(name, version)
-      end
+    output_file = "output.json"
+    # We do a `popen3` so no value are displayed on the terminal.
+    Open3.popen3("opam", "install", "-y", "--json=#{output_file}", "--dry-run", to_s) do |_, _, _, process|
+      process.value
+    end
+    output = JSON.parse(File.read(output_file))
+    if output == [] then
+      nil
+    else
+      to_proceed = output[0]["to-proceed"]
+      dependencies = to_proceed.map do |action|
+          package = nil
+          if action["install"] then
+            package = action["install"]
+          elsif action["upgrade"] then
+            package = action["upgrade"][1]
+          elsif action["downgrade"] then
+            package = action["downgrade"][1]
+          end
+          if package then
+            Package.new(package["name"], package["version"])
+          else
+            nil
+          end
+        end
+        .find_all {|dependency| !dependency.nil? && dependency.to_s != to_s}
+    end
+  end
+
+  # Uninstall the package.
+  def uninstall
+    system("opam", "remove", "-y", to_s)
+  end
+
+  # Install the dependencies of the package.
+  def install_dependencies
+    system("opam", "install", "-y", "--deps-only", to_s)
+  end
+
+  # Install the package.
+  def install
+    system("opam", "install", "-y", to_s)
   end
 end

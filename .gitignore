@@ -1,4 +1,5 @@
 database/
+output.json
 
 *.gem
 *.rbc
