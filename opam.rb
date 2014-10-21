@@ -26,17 +26,8 @@ module Opam
     end.flatten.reverse
   end
 
-  # Add a list of repositories.
-  def Opam.add_repositories(*repositories)
-    for repository in repositories do
-      system("opam repo add #{repository} #{Opam.repositories[repository]}")
-    end
-  end
-
-  # Remove a list of repositories.
-  def Opam.remove_repositories(*repositories)
-    for repository in repositories do
-      system("opam repo remove #{repository}")
-    end
+  # Add a repository.
+  def Opam.add_repository(repository)
+    system("opam", "repo", "add", repository.to_s, Opam.repositories[repository])
   end
 end

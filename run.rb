@@ -91,7 +91,7 @@ end
 
 for repository in [:stable, :testing, :unstable] do
   puts(" \e[1;34mBenching #{repository} repository\e[0m ".center(80, "*"))
-  Opam.add_repositories(repository)
+  Opam.add_repository(repository)
   run = Run.new
   run.bench_all
   run.write_to_database(repository)
