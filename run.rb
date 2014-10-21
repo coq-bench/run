@@ -2,19 +2,9 @@
 require_relative 'database'
 require_relative 'opam'
 require_relative 'package'
-# require_relative 'result'
 
 class Run
-  attr_reader :architecture, :packages
-
   def initialize
-    @architecture = {
-      os: `uname -s`.strip,
-      hardware: `uname -m`.strip,
-      ocaml: `ocamlc -version`.strip,
-      opam: `opam --version`.strip,
-      coq: `opam info --field=version coq`.strip }
-
     @packages = {}
   end
 
@@ -69,10 +59,6 @@ class Run
             puts
             @packages[package.to_s] = ["DepsError"]
           end
-          # Add the result to the CSV database.
-          # status = is_success_dependencies ? (is_success ? "OK" : "Error") : "Deps error"
-          # @database.add_bench(package.name, package.version, duration, status)
-          # @packages[package.to_s] = [duration, status]
         else
           raise "The package #{package} cannot be uninstalled."
         end
@@ -86,6 +72,21 @@ class Run
       bench(package)
     end
   end
+
+  # Save the results of the bench to the database.
+  def write_to_database(repository)
+    os = `uname -s`.strip
+    hardware = `uname -m`.strip
+    ocaml = `ocamlc -version`.strip
+    opam = `opam --version`.strip
+    coq = `opam info --field=version coq`.strip
+    database = Database.new("database", "#{os}-#{hardware}-#{ocaml}-#{opam}", coq, repository)
+
+    for package, result in @packages do
+      name, version = package.split(".", 2)
+      database.add_bench(name, version, result)
+    end
+  end
 end
 
 for repository in [:stable, :testing, :unstable] do
@@ -93,6 +94,5 @@ for repository in [:stable, :testing, :unstable] do
   Opam.add_repositories(repository)
   run = Run.new
   run.bench_all
-  p run.architecture
-  p run.packages
+  run.write_to_database(repository)
 end

@@ -4,23 +4,23 @@ require 'fileutils'
 
 # A view of the database for a specific repository, architecture and Coq version
 class Database
-  def initialize(folder, repository, architecture, coq)
+  def initialize(folder, architecture, coq, repository)
     @folder = folder
-    @repository = repository
     @architecture = architecture
     @coq = coq
+    @repository = repository
   end
 
-  def add_bench(name, version, duration, status)
+  def add_bench(name, version, result)
     FileUtils.mkdir_p(folder_name(name))
     CSV.open(file_name(name, version), "a") do |csv|
-      csv << [Time.now.to_i, duration, status]
+      csv << [Time.now.to_i] + result
     end
   end
 
 private
   def folder_name(name)
-    "#{@folder}/#{@repository}/#{@architecture}/#{@coq}/#{name}"
+    "#{@folder}/#{@architecture}/#{@coq}/#{@repository}/#{name}"
   end
 
   def file_name(name, version)
