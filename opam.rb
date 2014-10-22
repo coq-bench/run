@@ -4,7 +4,7 @@ require_relative 'package'
 module Opam
   # Coq repositories.
   def Opam.repositories
-    { stable: "https://github.com/clarus/opam-coq-repo.git", # For now, a smaller fork.
+    { stable: "https://github.com/coq/opam-coq-repo.git",
       testing: "https://github.com/coq/opam-coq-repo-testing.git",
       unstable: "https://github.com/coq/opam-coq-repo-unstable.git" }
   end
