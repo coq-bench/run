@@ -19,7 +19,7 @@ class Package
   def dependencies_to_install
     output_file = "output.json"
     # We do a `popen3` so no value are displayed on the terminal.
-    Open3.popen3("opam", "install", "-y", "--json=#{output_file}", "--dry-run", to_s) do |_, _, _, process|
+    Open3.popen3("opam", "install", "--root=.opam_run", "-y", "--json=#{output_file}", "--dry-run", to_s) do |_, _, _, process|
       process.value
     end
     output = JSON.parse(File.read(output_file))
@@ -46,18 +46,13 @@ class Package
     end
   end
 
-  # Uninstall the package.
-  def uninstall
-    system("opam", "remove", "-y", to_s)
-  end
-
   # Install the dependencies of the package.
   def install_dependencies
-    system("opam", "install", "-y", "--deps-only", to_s)
+    system("opam", "install", "--root=.opam_run", "-y", "--deps-only", to_s)
   end
 
   # Install the package.
   def install
-    system("opam", "install", "-y", to_s)
+    system("opam", "install", "--root=.opam_run", "-y", to_s)
   end
 end

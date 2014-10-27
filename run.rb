@@ -1,75 +1,58 @@
 # Update the CSV database with a new bench suite
+require 'fileutils'
 require_relative 'database'
 require_relative 'opam'
 require_relative 'package'
 
 class Run
-  def initialize
-    @packages = {}
+  def initialize(packages)
+    @packages = packages
+    @results = []
   end
 
-  # Bench one package.
-  def bench(package)
-    # Check that the package is not already benched or being installed.
-    unless @packages.has_key?(package.to_s) then
-      @packages[package.to_s] = ["Installing..."]
-      dependencies = package.dependencies_to_install
-
-      # First, bench the dependencies.
-      unless dependencies.nil? then
-        for dependency in dependencies do
-          if dependency.name.match(/\Acoq:/) then
-            bench(dependency)
-          end
-        end
-      end
-
+  # Bench the packages.
+  def bench
+    for package in @packages do
       # Display the package name.
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
-      # Test if it is installable with the current configuration and if Coq
-      # itself is not a dependency (should not be the case, except if the
-      # current Coq is not compatible with the package).
-      if dependencies.nil? ||  dependencies.find {|dependency| dependency.name == "coq"} then
+      # Copy the `.opam` folder to `.opam_run`.
+      system("rsync", "-a", "--delete", ".opam/", ".opam_run")
+      dependencies = package.dependencies_to_install
+
+      # Test if the package is not installable.
+      if dependencies.nil?
         puts
-        puts "\e[1mIncompatible with the current configuration\e[0m"
+        puts "\e[1mThe dependencies cannot be resolved.\e[0m"
         puts
-        @packages[package.to_s] = ["NotCompatible"]
+        result = ["DepsError"]
+      # Test if the current Coq is not compatible with the package.
+      elsif dependencies.find {|dependency| dependency.name == "coq"} then
+        puts
+        puts "\e[1mIncompatible with the current configuration.\e[0m"
+        puts
+        result = ["NotCompatible"]
       else
-        # Remove a previously installed version, if any.
-        puts("= Uninstall =".center(80, "-"))
-        if package.uninstall then
-          # Install only the dependencies.
-          puts("= Dependencies =".center(80, "-"))
-          is_success_dependencies = package.install_dependencies
-          if is_success_dependencies then
-            # Install the package itself, and measure the total installation duration.
-            puts("= Package =".center(80, "-"))
-            starting_time = Time.now
-            is_success = package.install
-            duration = (Time.now - starting_time).to_i
-            puts
-            puts "\e[1mDuration: #{duration} s\e[0m"
-            puts
-            @packages[package.to_s] = is_success ?
-              ["Success", duration.to_s] :
-              ["Error"]
-          else
-            duration = 0
-            puts
-            @packages[package.to_s] = ["DepsError"]
-          end
+        # Install only the dependencies.
+        puts("= Dependencies =".center(80, "-"))
+        if package.install_dependencies then
+          # Install the package itself, and measure the total installation duration.
+          puts("= Package =".center(80, "-"))
+          starting_time = Time.now
+          is_success = package.install
+          duration = (Time.now - starting_time).to_i
+          puts
+          puts "\e[1mDuration: #{duration} s.\e[0m"
+          puts
+          result = is_success ? ["Success", duration.to_s] : ["Error"]
         else
-          raise "The package #{package} cannot be uninstalled."
+          puts
+          puts "\e[1mError in installation of the dependencies.\e[0m"
+          puts
+          result = ["DepsError"]
         end
       end
-    end
-  end
-
-  # Bench all the Coq packages.
-  def bench_all
-    for package in Opam.all_packages do
-      bench(package)
+      @results << [package.name, package.version, result]
     end
   end
 
@@ -82,8 +65,7 @@ class Run
     coq = `opam info --field=version coq`.strip
     database = Database.new("database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq)
 
-    for package, result in @packages do
-      name, version = package.split(".", 2)
+    for name, version, result in @results do
       database.add_bench(name, version, result)
     end
   end
@@ -102,11 +84,13 @@ when "-h", "--help", "help"
   exit(0)
 when "stable"
   packages = Opam.all_packages(["stable"])
-  p packages
-  exit
+  puts "Packages to bench:"
+  for package in packages do
+    puts "- #{package.name} #{package.version}"
+  end
+  run = Run.new(packages)
   Opam.add_repository("stable")
-  run = Run.new
-  run.bench_all
+  run.bench
   run.write_to_database("stable")
 else
   puts_usage

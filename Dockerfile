@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM ubuntu:14.10
 MAINTAINER Guillaume Claret
 
 RUN apt-get update && apt-get upgrade -y
@@ -56,3 +56,4 @@ RUN git clone https://github.com/coq/repo-unstable.git unstable
 # Initialize the bench folder
 ADD . /root/run
 WORKDIR /root/run
+RUN ln -s /.opam ./
