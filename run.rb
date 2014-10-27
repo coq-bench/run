@@ -89,10 +89,31 @@ class Run
   end
 end
 
-for repository in [:stable, :testing, :unstable] do
-  puts(" \e[1;34mBenching #{repository} repository\e[0m ".center(80, "*"))
-  Opam.add_repository(repository)
+def puts_usage
+  puts "Usage: ruby run.rb repo"
+  puts "  stable: the stable repository"
+  puts "  testing: the testing repository"
+  puts "  unstable: the unstable repository"
+end
+
+case ARGV[0]
+when "-h", "--help", "help"
+  puts_usage
+  exit(0)
+when "stable"
+  Opam.add_repository("stable")
   run = Run.new
   run.bench_all
-  run.write_to_database(repository)
+  run.write_to_database("stable")
+else
+  puts_usage
+  exit(1)
 end
+
+# for repository in [:stable, :testing, :unstable] do
+#   puts(" \e[1;34mBenching #{repository} repository\e[0m ".center(80, "*"))
+#   Opam.add_repository(repository)
+#   run = Run.new
+#   run.bench_all
+#   run.write_to_database(repository)
+# end
