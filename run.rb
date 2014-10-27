@@ -14,6 +14,7 @@ class Run
   def bench
     for package in @packages do
       # Display the package name.
+      puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
       # Copy the `.opam` folder to `.opam_run`.
@@ -24,13 +25,11 @@ class Run
       if dependencies.nil?
         puts
         puts "\e[1mThe dependencies cannot be resolved.\e[0m"
-        puts
         result = ["DepsError"]
       # Test if the current Coq is not compatible with the package.
       elsif dependencies.find {|dependency| dependency.name == "coq"} then
         puts
         puts "\e[1mIncompatible with the current configuration.\e[0m"
-        puts
         result = ["NotCompatible"]
       else
         # Install only the dependencies.
@@ -43,12 +42,10 @@ class Run
           duration = (Time.now - starting_time).to_i
           puts
           puts "\e[1mDuration: #{duration} s.\e[0m"
-          puts
           result = is_success ? ["Success", duration.to_s] : ["Error"]
         else
           puts
           puts "\e[1mError in installation of the dependencies.\e[0m"
-          puts
           result = ["DepsError"]
         end
       end
@@ -78,29 +75,32 @@ def puts_usage
   puts "  unstable: the unstable repository"
 end
 
-case ARGV[0]
-when "-h", "--help", "help"
-  puts_usage
-  exit(0)
-when "stable"
-  packages = Opam.all_packages(["stable"])
+def run(repository, repositories)
+  puts "\e[1;34mBenching the #{repository} repository:\e[0m"
+  packages = Opam.all_packages(repositories)
   puts "Packages to bench:"
   for package in packages do
     puts "- #{package.name} #{package.version}"
   end
   run = Run.new(packages)
-  Opam.add_repository("stable")
+  for repository in repositories do
+    Opam.add_repository(repository)
+  end
   run.bench
-  run.write_to_database("stable")
+  run.write_to_database(repository)
+end
+
+case ARGV[0]
+when "-h", "--help", "help"
+  puts_usage
+  exit(0)
+when "stable"
+  run("stable", ["stable"])
+when "testing"
+  run("testing", ["stable", "testing"])
+when "unstable"
+  run("unstable", ["stable", "testing", "unstable"])
 else
   puts_usage
   exit(1)
 end
-
-# for repository in [:stable, :testing, :unstable] do
-#   puts(" \e[1;34mBenching #{repository} repository\e[0m ".center(80, "*"))
-#   Opam.add_repository(repository)
-#   run = Run.new
-#   run.bench_all
-#   run.write_to_database(repository)
-# end
