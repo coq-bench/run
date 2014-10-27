@@ -101,6 +101,9 @@ when "-h", "--help", "help"
   puts_usage
   exit(0)
 when "stable"
+  packages = Opam.all_packages(["stable"])
+  p packages
+  exit
   Opam.add_repository("stable")
   run = Run.new
   run.bench_all
