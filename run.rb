@@ -18,7 +18,7 @@ class Run
       # First, bench the dependencies.
       unless dependencies.nil? then
         for dependency in dependencies do
-          if dependency.name.match(/\Acoq-/) then
+          if dependency.name.match(/\Acoq:/) then
             bench(dependency)
           end
         end
@@ -80,7 +80,7 @@ class Run
     ocaml = `ocamlc -version`.strip
     opam = `opam --version`.strip
     coq = `opam info --field=version coq`.strip
-    database = Database.new("database", "#{os}-#{hardware}-#{ocaml}-#{opam}", coq, repository)
+    database = Database.new("database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq)
 
     for package, result in @packages do
       name, version = package.split(".", 2)
