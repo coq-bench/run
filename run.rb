@@ -63,7 +63,7 @@ class Run
     ocaml = `ocamlc -version`.strip
     opam = `opam --version`.strip
     coq = `opam info --field=version coq`.strip
-    database = Database.new("database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq)
+    database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
     for name, version, result in @results do
       database.add_bench(name, version, result)

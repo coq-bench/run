@@ -49,7 +49,7 @@ RUN opam install -y coq.8.4.5
 
 # Repositories
 WORKDIR /root
-RUN git clone https://github.com/coq/repo-stable.git stable
+RUN git clone https://github.com/clarus/repo-stable.git stable
 RUN git clone https://github.com/coq/repo-testing.git testing
 RUN git clone https://github.com/coq/repo-unstable.git unstable
 

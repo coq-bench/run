@@ -25,6 +25,6 @@ private
   end
 
   def file_name
-    "#{folder_name(name)}/#{time.utc.strftime("%F_%T")}.csv"
+    "#{folder_name}/#{@time.utc.strftime("%F_%T")}.csv"
   end
 end
