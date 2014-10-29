@@ -70,6 +70,11 @@ class Run
     coq = `opam info --field=version coq`.strip
     database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
+    titles = ["Name", "Version", "Status",
+      "Dry command", "Dry status", "Dry duration", "Dry output", "Dry JSON",
+      "Deps command", "Deps status", "Deps duration", "Deps output",
+      "Package command", "Package status", "Package duration", "Package output"]
+    database.add_bench(titles)
     for result in @results do
       database.add_bench(result)
     end
