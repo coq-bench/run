@@ -5,7 +5,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y gcc make git
 RUN apt-get install -y m4
 RUN apt-get install -y curl ocaml
-RUN apt-get install -y ruby
+RUN apt-get install -y g++ ruby
 
 # # OCaml 4.02
 # WORKDIR /root
@@ -38,18 +38,18 @@ RUN make install
 
 # Initialize OPAM
 RUN opam init
-ENV OPAMJOBS 6
+ENV OPAMJOBS 4
 
 # OCaml 4.02.0
 # RUN opam switch 4.02.0
 
 # Coq
 RUN opam repo add coqs https://github.com/coq/repo-coqs.git
-RUN opam install -y coq.8.4.5
+RUN opam install -y coq.dev
 
 # Repositories
 WORKDIR /root
-RUN git clone https://github.com/clarus/repo-stable.git stable
+RUN git clone https://github.com/coq/repo-stable.git stable
 RUN git clone https://github.com/coq/repo-testing.git testing
 RUN git clone https://github.com/coq/repo-unstable.git unstable
 
