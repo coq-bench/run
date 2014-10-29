@@ -1,4 +1,4 @@
-# Update the CSV database with a new bench suite
+# Update the CSV database with a new bench suite.
 require 'fileutils'
 require_relative 'database'
 require_relative 'opam'
@@ -19,37 +19,45 @@ class Run
 
       # Copy the `.opam` folder to `.opam_run`.
       system("rsync", "-a", "--delete", ".opam/", ".opam_run")
-      dependencies = package.dependencies_to_install
+
+      # Run a dry install to compute the dependencies.
+      dependencies, *dry_logs = package.dependencies_to_install
+      puts dry_logs[3]
+      puts
 
       # Test if the package is not installable.
       if dependencies.nil?
         puts
         puts "\e[1mThe dependencies cannot be resolved.\e[0m"
-        result = ["DepsError"]
+        deps_logs = package.dummy
+        package_logs = package.dummy
+        result = "DepsError"
       # Test if the current Coq is not compatible with the package.
       elsif dependencies.find {|dependency| dependency.name == "coq"} then
         puts
         puts "\e[1mIncompatible with the current configuration.\e[0m"
-        result = ["NotCompatible"]
+        deps_logs = package.dummy
+        package_logs = package.dummy
+        result = "NotCompatible"
       else
         # Install only the dependencies.
-        puts("= Dependencies =".center(80, "-"))
-        if package.install_dependencies then
-          # Install the package itself, and measure the total installation duration.
-          puts("= Package =".center(80, "-"))
-          starting_time = Time.now
-          is_success = package.install
-          duration = (Time.now - starting_time).to_i
+        puts "Dependencies..."
+        deps_logs = package.install_dependencies
+        if deps_logs[1] == 0 then
+          # Install the package itself.
+          puts "Package..."
+          package_logs = package.install
           puts
-          puts "\e[1mDuration: #{duration} s.\e[0m"
-          result = is_success ? ["Success", duration.to_s] : ["Error"]
+          puts "\e[1mDuration: #{package_logs[2]} s.\e[0m"
+          result = package_logs[1] == 0 ? "Success" : "Error"
         else
           puts
           puts "\e[1mError in installation of the dependencies.\e[0m"
-          result = ["DepsError"]
+          package_logs = package.dummy
+          result = "DepsError"
         end
       end
-      @results << [package.name, package.version, result]
+      @results << [package.name, package.version, result, *dry_logs, *deps_logs, *package_logs]
     end
   end
 
@@ -62,8 +70,8 @@ class Run
     coq = `opam info --field=version coq`.strip
     database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
-    for name, version, result in @results do
-      database.add_bench(name, version, result)
+    for result in @results do
+      database.add_bench(result)
     end
   end
 end

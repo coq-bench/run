@@ -14,19 +14,19 @@ class Package
     "#{@name}.#{@version}"
   end
 
-  # The list of dependencies to install before the package, `nil` if the package
-  # cannot be installed.
+  # The list of dependencies to install before the package (`nil` if the package
+  # cannot be installed), the command, its status, output and JSON output.
   def dependencies_to_install
     output_file = "output.json"
-    # We do a `popen3` so no value are displayed on the terminal.
-    Open3.popen3("opam", "install", "--root=.opam_run", "-y", "--json=#{output_file}", "--dry-run", to_s) do |_, _, _, process|
-      process.value
-    end
-    output = JSON.parse(File.read(output_file))
-    if output == [] then
-      nil
+    command = ["opam", "install", "--root=.opam_run", "-y",
+      "--json=#{output_file}", "--dry-run", to_s]
+    logs = run(command)
+    file_output = File.read(output_file)
+    json = JSON.parse(file_output)
+    if json == [] then
+      dependencies = nil
     else
-      to_proceed = output[0]["to-proceed"]
+      to_proceed = json[0]["to-proceed"]
       dependencies = to_proceed.map do |action|
           package = nil
           if action["install"] then
@@ -37,22 +37,37 @@ class Package
             package = action["downgrade"][1]
           end
           if package then
-            Package.new(package["name"], package["version"])
+            dependencies = Package.new(package["name"], package["version"])
           else
-            nil
+            dependencies = nil
           end
         end
         .find_all {|dependency| !dependency.nil? && dependency.to_s != to_s}
     end
+    [dependencies, *logs, file_output]
   end
 
   # Install the dependencies of the package.
   def install_dependencies
-    system("opam", "install", "--root=.opam_run", "-y", "--deps-only", to_s)
+    run(["opam", "install", "--root=.opam_run", "-y", "--deps-only", to_s])
   end
 
   # Install the package.
   def install
-    system("opam", "install", "--root=.opam_run", "-y", to_s)
+    run(["opam", "install", "--root=.opam_run", "-y", "--verbose", to_s])
+  end
+
+  # Run a dummy command.
+  def dummy
+    run(["true"])
+  end
+
+private
+  # Run a command and give the return code, the duration and the output.
+  def run(command)
+    starting_time = Time.now
+    output, status = Open3.capture2e(*command)
+    duration = (Time.now - starting_time).to_i
+    [command.join(" "), status.to_i, duration, output]
   end
 end

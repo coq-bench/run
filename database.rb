@@ -12,10 +12,10 @@ class Database
     @time = time
   end
 
-  def add_bench(name, version, result)
+  def add_bench(result)
     FileUtils.mkdir_p(folder_name)
     CSV.open(file_name, "a") do |csv|
-      csv << [name, version] + result
+      csv << result
     end
   end
 
