@@ -21,7 +21,7 @@ class Package
     command = ["opam", "install", "--root=.opam_run", "-y",
       "--json=#{output_file}", "--dry-run", to_s]
     logs = run(command)
-    file_output = File.read(output_file)
+    file_output = File.read(output_file, encoding: "UTF-8")
     json = JSON.parse(file_output)
     if json == [] then
       dependencies = nil
@@ -68,6 +68,6 @@ private
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
     duration = (Time.now - starting_time).to_i
-    [command.join(" "), status.to_i, duration, output]
+    [command.join(" "), status.to_i, duration, output.force_encoding("UTF-8")]
   end
 end
