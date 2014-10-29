@@ -14,7 +14,7 @@ class Database
 
   def add_bench(result)
     FileUtils.mkdir_p(folder_name)
-    CSV.open(file_name, "a") do |csv|
+    CSV.open(file_name, "a", encoding: "UTF-8") do |csv|
       csv << result
     end
   end
