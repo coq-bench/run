@@ -45,7 +45,7 @@ ENV OPAMJOBS 4
 
 # Coq
 RUN opam repo add coqs https://github.com/coq/repo-coqs.git
-RUN opam install -y coq.8.4.5
+RUN opam install -y coq.dev
 
 # Repositories
 WORKDIR /root
@@ -56,4 +56,3 @@ RUN git clone https://github.com/coq/repo-unstable.git unstable
 # Initialize the bench folder
 ADD . /root/run
 WORKDIR /root/run
-RUN ln -s ~/.opam ./

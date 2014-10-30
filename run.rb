@@ -17,8 +17,11 @@ class Run
       puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
-      # Copy the `.opam` folder to `.opam_run`.
-      system("rsync", "-a", "--delete", ".opam/", ".opam_run")
+      # Copy the `~/.opam_backup` folder to `~/.opam`.
+      system("rsync -a --delete ~/.opam_backup/ ~/.opam")
+
+      # Display the list of installed packages (should be almost empty).
+      system("opam list --root=~/.opam")
 
       # Run a dry install to compute the dependencies.
       dependencies, *dry_logs = package.dependencies_to_install
@@ -48,8 +51,13 @@ class Run
           puts "Package..."
           package_logs = package.install
           puts
-          puts "\e[1mDuration: #{package_logs[2]} s.\e[0m"
-          result = package_logs[1] == 0 ? "Success" : "Error"
+          if package_logs[1] == 0 then
+            puts "\e[1mDuration: #{package_logs[2]} s.\e[0m"
+            result = "Success"
+          else
+            puts "\e[1mError with the package.\e[0m"
+            result = "Error"
+          end
         else
           puts
           puts "\e[1mError in installation of the dependencies.\e[0m"
@@ -57,7 +65,8 @@ class Run
           result = "DepsError"
         end
       end
-      @results << [package.name, package.version, result, *dry_logs, *deps_logs, *package_logs]
+      @results << [package.name, package.version, result,
+        *dry_logs, *deps_logs, *package_logs]
     end
   end
 
@@ -99,6 +108,8 @@ def run(repository, repositories)
   for repository in repositories do
     Opam.add_repository(repository)
   end
+  # Save the `~/.opam` folder in `.opam_backup`.
+  system("cp -R ~/.opam ~/.opam_backup")
   run.bench
   run.write_to_database(repository)
 end
