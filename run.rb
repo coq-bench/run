@@ -21,7 +21,7 @@ class Run
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
 
       # Display the list of installed packages (should be almost empty).
-      system("opam list --root=~/.opam")
+      system("opam", "list")
 
       # Run a dry install to compute the dependencies.
       dependencies, *dry_logs = package.dependencies_to_install
@@ -99,18 +99,25 @@ end
 
 def run(repository, repositories)
   puts "\e[1;34mBenching the #{repository} repository:\e[0m"
+  # List all packages.
   packages = Opam.all_packages(repositories)
   puts "Packages to bench:"
   for package in packages do
     puts "- #{package.name} #{package.version}"
   end
+  # Make a new bench object.
   run = Run.new(packages)
+  # Add the repositories.
   for repository in repositories do
     Opam.add_repository(repository)
   end
-  # Save the `~/.opam` folder in `.opam_backup`.
-  system("cp -R ~/.opam ~/.opam_backup")
+  # Save the `~/.opam` folder to `~/.opam_backup`.
+  save_command = "cp -R ~/.opam ~/.opam_backup"
+  puts save_command
+  system(save_command)
+  # Run the bench.
   run.bench
+  # Save the results to the database.
   run.write_to_database(repository)
 end
 

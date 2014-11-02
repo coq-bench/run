@@ -14,6 +14,6 @@ module Opam
 
   # Add a repository.
   def Opam.add_repository(repository)
-    system("opam", "repo", "add", "--root=~/.opam", "--kind=git", repository, "../#{repository}")
+    system("opam", "repo", "add", "--kind=git", repository, "../#{repository}")
   end
 end

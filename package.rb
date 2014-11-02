@@ -18,8 +18,8 @@ class Package
   # cannot be installed), the command, its status, output and JSON output.
   def dependencies_to_install
     output_file = "output.json"
-    command = ["opam", "install", "--root=~/.opam", "-y",
-      "--json=#{output_file}", "--dry-run", to_s]
+    command = ["opam", "install", "-y", "--json=#{output_file}", "--dry-run",
+      to_s]
     logs = run(command)
     file_output = File.read(output_file, encoding: "UTF-8")
     json = JSON.parse(file_output)
@@ -49,12 +49,12 @@ class Package
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["opam", "install", "--root=~/.opam", "-y", "--deps-only", to_s])
+    run(["opam", "install", "-y", "--deps-only", to_s])
   end
 
   # Install the package.
   def install
-    run(["opam", "install", "--root=~/.opam", "-y", "--verbose", to_s])
+    run(["opam", "install", "-y", "--verbose", to_s])
   end
 
   # Run a dummy command.
