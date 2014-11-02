@@ -23,28 +23,32 @@ class Run
       # Display the list of installed packages (should be almost empty).
       system("opam", "list")
 
-      # Run a dry install to compute the dependencies.
-      dependencies, *dry_logs = package.dependencies_to_install
-      puts dry_logs[3]
+      # Run a dry install with the current coq.
+      dry_logs_with_coq = package.dry_install_with_coq
+      puts dry_logs_with_coq[3]
       puts
-
       # Test if the package is not installable.
-      if dependencies.nil?
-        puts
-        puts "\e[1mThe dependencies cannot be resolved.\e[0m"
-        deps_logs = package.dummy
-        package_logs = package.dummy
-        result = "DepsError"
-      # Test if the current Coq is not compatible with the package.
-      elsif dependencies.find {|dependency| dependency.name == "coq"} then
-        puts
-        puts "\e[1mIncompatible with the current configuration.\e[0m"
-        deps_logs = package.dummy
-        package_logs = package.dummy
-        result = "NotCompatible"
+      if dry_logs_with_coq[1] != 0 then
+        # Test if the package can be installed without the current Coq.
+        dry_logs_without_coq = package.dry_install_without_coq
+        puts dry_logs_without_coq[3]
+        if dry_logs_without_coq[1] == 0 then
+          puts
+          puts "\e[1mIncompatible with the current Coq version.\e[0m"
+          deps_logs = package.dummy
+          package_logs = package.dummy
+          result = "NotCompatible"
+        else
+          puts
+          puts "\e[1mThe dependencies cannot be resolved.\e[0m"
+          deps_logs = package.dummy
+          package_logs = package.dummy
+          result = "DepsError"
+        end
       else
         # Install only the dependencies.
         puts "Dependencies..."
+        dry_logs_without_coq = package.dummy
         deps_logs = package.install_dependencies
         if deps_logs[1] == 0 then
           # Install the package itself.
@@ -66,7 +70,7 @@ class Run
         end
       end
       @results << [package.name, package.version, result,
-        *dry_logs, *deps_logs, *package_logs]
+        *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs]
     end
   end
 
@@ -80,7 +84,8 @@ class Run
     database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
     titles = ["Name", "Version", "Status",
-      "Dry command", "Dry status", "Dry duration", "Dry output", "Dry JSON",
+      "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
+      "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
       "Deps command", "Deps status", "Deps duration", "Deps output",
       "Package command", "Package status", "Package duration", "Package output"]
     database.add_bench(titles)
