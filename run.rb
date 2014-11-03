@@ -56,7 +56,7 @@ class Run
           package_logs = package.install
           puts
           if package_logs[1] == 0 then
-            puts "\e[1mDuration: #{package_logs[2]} s.\e[0m"
+            puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
             result = "Success"
           else
             puts "\e[1mError with the package.\e[0m"
