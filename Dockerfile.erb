@@ -36,7 +36,7 @@ RUN curl -L https://github.com/ocaml/opam/archive/<%= opam %>.tar.gz |tar -xz
 WORKDIR opam-<%= opam %>
 RUN ./configure
 RUN make lib-ext
-RUN make -j <%= jobs %>
+RUN make
 RUN make install
 
 # Initialize OPAM.
