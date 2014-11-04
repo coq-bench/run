@@ -1,0 +1,61 @@
+FROM ubuntu:14.10
+MAINTAINER Guillaume Claret
+
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y gcc make git
+RUN apt-get install -y curl m4 ruby
+RUN apt-get install -y aspcud
+RUN apt-get install -y g++
+
+# OCaml
+WORKDIR /root
+RUN apt-get install -y curl
+RUN curl -L https://github.com/ocaml/ocaml/archive/<%= ocaml %>.tar.gz |tar -xz
+WORKDIR /root/ocaml-<%= ocaml %>
+RUN ./configure
+RUN make world.opt
+RUN make install
+
+<% camlp4 = {
+  "4.02.0" => "4.02.0+2",
+  "4.02.1" => "4.02.1+1"
+} %>
+<% if camlp4[ocaml] %>
+# Camlp4
+WORKDIR /root
+RUN curl -L https://github.com/ocaml/camlp4/archive/<%= camlp4[ocaml] %>.tar.gz |tar -xz
+WORKDIR /root/camlp4-<%= camlp4[ocaml].gsub("+", "-") %>
+RUN ./configure
+RUN make all
+RUN make install
+<% end %>
+
+# OPAM
+WORKDIR /root
+RUN curl -L https://github.com/ocaml/opam/archive/<%= opam %>.tar.gz |tar -xz
+WORKDIR opam-<%= opam %>
+RUN ./configure
+RUN make lib-ext
+RUN make -j <%= jobs %>
+RUN make install
+
+# Initialize OPAM.
+RUN opam init
+ENV OPAMJOBS <%= jobs %>
+
+# We force the cache to be disabled here.
+RUN echo Dockerfile generated at <%= Time.now %>.
+
+# Coq
+RUN opam repo add coqs https://github.com/coq/repo-coqs.git
+RUN opam install -y coq.<%= coq %>
+
+# Repositories
+WORKDIR /root
+RUN git clone https://github.com/coq/repo-stable.git stable
+RUN git clone https://github.com/coq/repo-testing.git testing
+RUN git clone https://github.com/coq/repo-unstable.git unstable
+
+# Initialize the bench folder.
+ADD . /root/run
+WORKDIR /root/run
