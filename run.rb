@@ -17,6 +17,14 @@ class Run
       puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
+      # Initialize result variables.
+      dry_logs_with_coq = package.dummy
+      dry_logs_without_coq = package.dummy
+      deps_logs = package.dummy
+      package_logs = package.dummy
+      uninstall_logs = package.dummy
+      missing_removes = mistake_removes = []
+
       # Copy the `~/.opam_backup` folder to `~/.opam`.
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
 
@@ -35,29 +43,39 @@ class Run
         if dry_logs_without_coq[1] == 0 then
           puts
           puts "\e[1mIncompatible with the current Coq version.\e[0m"
-          deps_logs = package.dummy
-          package_logs = package.dummy
           result = "NotCompatible"
         else
           puts
           puts "\e[1mThe dependencies cannot be resolved.\e[0m"
-          deps_logs = package.dummy
-          package_logs = package.dummy
           result = "DepsError"
         end
       else
         # Install only the dependencies.
         puts "Dependencies..."
-        dry_logs_without_coq = package.dummy
         deps_logs = package.install_dependencies
         if deps_logs[1] == 0 then
+          def list_files
+            opam_root_folder = "#{Dir.home}/.opam/#{`opam switch show`.strip}"
+            Dir.glob("#{opam_root_folder}/**/*") - Dir.glob("#{opam_root_folder}/reinstall")
+          end
+          files_before = list_files
           # Install the package itself.
           puts "Package..."
           package_logs = package.install
           puts
           if package_logs[1] == 0 then
-            puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
-            result = "Success"
+            # Uninstall the package.
+            uninstall_logs = package.remove
+            files_after = list_files
+            missing_removes = files_after - files_before
+            mistake_removes = files_before - files_after
+            if uninstall_logs[1] == 0 && missing_removes + mistake_removes == [] then
+              puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
+              result = "Success"
+            else
+              puts "\e[1mError with the uninstallation.\e[0m"
+              result = "Error"
+            end
           else
             puts "\e[1mError with the package.\e[0m"
             result = "Error"
@@ -65,12 +83,12 @@ class Run
         else
           puts
           puts "\e[1mError in installation of the dependencies.\e[0m"
-          package_logs = package.dummy
           result = "DepsError"
         end
       end
       @results << [package.name, package.version, result,
-        *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs]
+        *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
+        *uninstall_logs, missing_removes, mistake_removes]
     end
   end
 
@@ -87,7 +105,9 @@ class Run
       "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
       "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
       "Deps command", "Deps status", "Deps duration", "Deps output",
-      "Package command", "Package status", "Package duration", "Package output"]
+      "Package command", "Package status", "Package duration", "Package output",
+      "Uninstall command", "Uninstall status", "Uninstall duration", "Uninstall output",
+      "Missing removes", "Mistake removes"]
     database.add_bench(titles)
     for result in @results do
       database.add_bench(result)

@@ -33,6 +33,11 @@ class Package
     run(["opam", "install", "-y", "--verbose", to_s])
   end
 
+  # Remove the package.
+  def remove
+    run(["opam", "remove", "-y", to_s])
+  end
+
   # Run a dummy command.
   def dummy
     run(["true"])
