@@ -55,8 +55,9 @@ class Run
         deps_logs = package.install_dependencies
         if deps_logs[1] == 0 then
           def list_files
-            opam_root_folder = "#{Dir.home}/.opam/#{`opam switch show`.strip}"
-            Dir.glob("#{opam_root_folder}/**/*") - Dir.glob("#{opam_root_folder}/reinstall")
+            opam_root_folder = File.join(Dir.home, ".opam", `opam switch show`.strip)
+            Dir.glob(File.join(opam_root_folder, "**", "*")) -
+              Dir.glob(File.join(opam_root_folder, "reinstall"))
           end
           files_before = list_files
           # Install the package itself.
