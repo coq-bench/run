@@ -74,7 +74,7 @@ class Run
               result = "Success"
             else
               puts "\e[1mError with the uninstallation.\e[0m"
-              result = "Error"
+              result = "UninstallError"
             end
           else
             puts "\e[1mError with the package.\e[0m"
@@ -88,7 +88,7 @@ class Run
       end
       @results << [package.name, package.version, result,
         *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
-        *uninstall_logs, missing_removes, mistake_removes]
+        *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n")]
     end
   end
 
