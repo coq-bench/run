@@ -5,7 +5,7 @@ Run the benchmarks.
 ### With Docker
 Clone the [database](https://github.com/coq-bench/database) in `../database`. Generate a `Dockerfile` for a specific configuration:
 
-    ruby make_dockerfile.rb 4 4.02.0 1.2.0 8.4.5
+    ruby make_dockerfile.rb 4 4.02.1 1.2.0 8.4.5
 
 Build the Docker image:
 
