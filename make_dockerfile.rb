@@ -1,3 +1,4 @@
+# Generate a Dockerfile for a given configuration.
 require 'erb'
 
 def puts_usage
