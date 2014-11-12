@@ -7,14 +7,20 @@ RUN apt-get install -y curl m4 ruby
 RUN apt-get install -y aspcud
 RUN apt-get install -y g++
 
+# Bench user
+RUN useradd --create-home bench
+USER bench
+ENV HOME /home/bench
+
 # OCaml
-WORKDIR /root
-RUN apt-get install -y curl
+WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/ocaml/archive/<%= ocaml %>.tar.gz |tar -xz
-WORKDIR /root/ocaml-<%= ocaml %>
+WORKDIR /home/bench/ocaml-<%= ocaml %>
 RUN ./configure
 RUN make world.opt
+USER root
 RUN make install
+USER bench
 
 <% camlp4 = {
   "4.02.0" => "4.02.0+2",
@@ -22,22 +28,26 @@ RUN make install
 } %>
 <% if camlp4[ocaml] %>
 # Camlp4
-WORKDIR /root
+WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/camlp4/archive/<%= camlp4[ocaml] %>.tar.gz |tar -xz
-WORKDIR /root/camlp4-<%= camlp4[ocaml].gsub("+", "-") %>
+WORKDIR /home/bench/camlp4-<%= camlp4[ocaml].gsub("+", "-") %>
 RUN ./configure
 RUN make all
+USER root
 RUN make install
+USER bench
 <% end %>
 
 # OPAM
-WORKDIR /root
+WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/opam/archive/<%= opam %>.tar.gz |tar -xz
 WORKDIR opam-<%= opam %>
 RUN ./configure
 RUN make lib-ext
 RUN make
+USER root
 RUN make install
+USER bench
 
 # Initialize OPAM.
 RUN opam init
@@ -51,11 +61,11 @@ RUN opam repo add coqs https://github.com/coq/repo-coqs.git
 RUN opam install -y coq.<%= coq %>
 
 # Repositories
-WORKDIR /root
+WORKDIR /home/bench
 RUN git clone https://github.com/coq/repo-stable.git stable
 RUN git clone https://github.com/coq/repo-testing.git testing
 RUN git clone https://github.com/coq/repo-unstable.git unstable
 
 # Initialize the bench folder.
-ADD . /root/run
-WORKDIR /root/run
+ADD . /home/bench/run
+WORKDIR /home/bench/run

@@ -9,7 +9,7 @@ for ocaml in ocamls do
   for repository in repositories do
     for coq in coqs do
       system("ruby", "make_dockerfile.rb", jobs.to_s, ocaml, opam, coq)
-      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/root/database run ruby run.rb #{repository}")
+      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/home/bench/database run ruby run.rb #{repository}")
     end
   end
 end
