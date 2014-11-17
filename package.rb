@@ -14,6 +14,10 @@ class Package
     "#{@name}.#{@version}"
   end
 
+  def lint(repository)
+    run(["ruby", "lint.rb", repository, "../#{repository}/packages/#{name}/#{name}.#{version}"])
+  end
+
   def dry_install_with_coq
     coq_version = `opam info --field=version coq`.strip
     run(["opam", "install", "-y", "--dry-run", to_s, "coq.#{coq_version}"])

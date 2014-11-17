@@ -1,3 +1,5 @@
+# Check that packages are well-formed.
+
 def puts_usage
   puts "Usage: ruby lint.rb repo folder"
   puts "  repo: stable, testing or unstable"
@@ -11,6 +13,9 @@ def lint(repository, folder)
   url = File.read(File.join(folder, "url"), encoding: "UTF-8")
 
   begin
+    unless name.match(/\Acoq\:/) then
+      raise "The package name should start with \"coq:\"."
+    end
     unless name.match(/\A[a-z:\-]+\z/) then
       raise "Wrong name #{name.inspect}, expected only small caps (a-z), dashes or colons (-, :)."
     end
