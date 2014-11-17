@@ -1,6 +1,4 @@
 Dockerfile
-database/
-output.json
 
 *.gem
 *.rbc
