@@ -40,7 +40,7 @@ license: \"MIT\""
         raise "Wrong stable version name #{version.inspect}, expected three numbers separated by dots."
       end
       unless url.match("checksum") then
-        raise "Checksum expected for the archive."
+        raise "A checksum is expected for the archive."
       end
     end
   rescue Exception => e
