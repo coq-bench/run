@@ -29,6 +29,10 @@ build: [
   [make \"install\"]
 ]"
     end
+    unless opam.match("homepage:") then
+      raise "You should add an homepage for your package. For example:
+homepage: \"https://github.com/user/project\""
+    end
     unless opam.match("license:") then
       raise "You should specify the license to make your package public, if possible an open-source one. For example:
 license: \"MIT\""
