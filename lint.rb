@@ -47,6 +47,8 @@ license: \"MIT\""
         raise "A checksum is expected for the archive."
       end
     end
+
+    puts "The package is valid."
   rescue Exception => e
     puts e
     exit(1)
