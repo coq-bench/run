@@ -5,8 +5,7 @@ require_relative 'opam'
 require_relative 'package'
 
 class Run
-  def initialize(repository, packages)
-    @repository = repository
+  def initialize(packages)
     @packages = packages
     @results = []
   end
@@ -34,7 +33,7 @@ class Run
       system("opam", "list")
 
       # Run the lint.
-      lint = package.lint(@repository)
+      lint = package.lint
       if lint[1] != 0 then
         puts
         puts "\e[1mLint error.\e[0m"
@@ -143,7 +142,7 @@ def run(repository, repositories)
     puts "- #{package.name} #{package.version}"
   end
   # Make a new bench object.
-  run = Run.new(repository, packages)
+  run = Run.new(packages)
   # Add the repositories.
   for repository in repositories do
     Opam.add_repository(repository)

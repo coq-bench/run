@@ -5,7 +5,8 @@ require 'open3'
 class Package
   attr_reader :name, :version
 
-  def initialize(name, version)
+  def initialize(repository, name, version)
+    @repository = repository
     @name = name
     @version = version
   end
@@ -14,8 +15,8 @@ class Package
     "#{@name}.#{@version}"
   end
 
-  def lint(repository)
-    run(["ruby", "lint.rb", repository, "../#{repository}/packages/#{name}/#{name}.#{version}"])
+  def lint
+    run(["ruby", "lint.rb", @repository, "../#{repository}/packages/#{name}/#{name}.#{version}"])
   end
 
   def dry_install_with_coq

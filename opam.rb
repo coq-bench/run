@@ -7,7 +7,7 @@ module Opam
     repositories.map do |repository|
       Dir.glob("../#{repository}/packages/*/*").map do |path|
         name, version = File.basename(path).split(".", 2)
-        Package.new(name, version)
+        Package.new(repository, name, version)
       end
     end.flatten(1).sort {|x, y| x.to_s <=> y.to_s}
   end
