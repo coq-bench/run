@@ -16,8 +16,8 @@ def lint(repository, folder)
     unless name.match(/\Acoq\:/) then
       raise "The package name should start with \"coq:\"."
     end
-    unless name.match(/\A[a-z:\-]+\z/) then
-      raise "Wrong name #{name.inspect}, expected only small caps (a-z), dashes or colons (-, :)."
+    unless name.match(/\A[a-z0-9:\-]+\z/) then
+      raise "Wrong name #{name.inspect}, expected only small caps (a-z), digits (0-9), dashes or colons (-, :)."
     end
     unless descr.strip[-1] == "." then
       raise "The description should end by a dot (.) to ensure uniformity."
