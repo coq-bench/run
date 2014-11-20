@@ -3,7 +3,6 @@
 jobs = 4
 opam = "1.2.0"
 ocamls = ["4.01.0", "4.02.1"]
-# repositories = ["stable", "testing", "unstable"]
 repositories = ["stable", "unstable"]
 coqs = ["8.4pl4", "8.4.5", "8.4.dev", "dev"]
 

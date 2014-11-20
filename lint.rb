@@ -2,7 +2,7 @@
 
 def puts_usage
   puts "Usage: ruby lint.rb repo folder"
-  puts "  repo: stable, testing or unstable"
+  puts "  repo: stable or unstable"
   puts "  folder: the folder of a package"
 end
 
@@ -38,7 +38,7 @@ homepage: \"https://github.com/user/project\""
 license: \"MIT\""
     end
 
-    # Checks specific to the stable repository.
+    # Specific checkes for the stable repository.
     unless repository != "stable" then
       unless version.match(/\A[0-9]+\.[0-9]+\.[0-9]+\z/) then
         raise "Wrong stable version name #{version.inspect}, expected three numbers separated by dots."

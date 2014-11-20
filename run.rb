@@ -129,7 +129,6 @@ end
 def puts_usage
   puts "Usage: ruby run.rb repo"
   puts "  stable: the stable repository"
-  puts "  testing: the testing repository"
   puts "  unstable: the unstable repository"
 end
 
@@ -163,10 +162,8 @@ when "-h", "--help", "help"
   exit(0)
 when "stable"
   run("stable", ["stable"])
-when "testing"
-  run("testing", ["stable", "testing"])
 when "unstable"
-  run("unstable", ["stable", "testing", "unstable"])
+  run("unstable", ["stable", "unstable"])
 else
   puts_usage
   exit(1)

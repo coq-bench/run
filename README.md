@@ -14,7 +14,6 @@ Build the Docker image:
 Run the image for each repository:
 
     docker run -ti -v `pwd`/../database:/root/database run ruby run.rb stable
-    docker run -ti -v `pwd`/../database:/root/database run ruby run.rb testing
     docker run -ti -v `pwd`/../database:/root/database run ruby run.rb unstable
 
 You can now commit the files added to `../database`.
