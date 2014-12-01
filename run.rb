@@ -13,6 +13,7 @@ class Run
   # Bench the packages.
   def bench
     for package in @packages do
+    # for package in [Package.new("stable", "coq:function-ninjas", "1.0.0")] do
       # Display the package name.
       puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
@@ -24,7 +25,7 @@ class Run
       deps_logs = package.dummy
       package_logs = package.dummy
       uninstall_logs = package.dummy
-      missing_removes = mistake_removes = []
+      missing_removes = mistake_removes = install_sizes = []
 
       # Copy the `~/.opam_backup` folder to `~/.opam`.
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
@@ -62,17 +63,16 @@ class Run
           puts "Dependencies..."
           deps_logs = package.install_dependencies
           if deps_logs[1] == 0 then
-            def list_files
-              opam_root_folder = File.join(Dir.home, ".opam", `opam switch show`.strip)
-              Dir.glob(File.join(opam_root_folder, "**", "*")) -
-                Dir.glob(File.join(opam_root_folder, "reinstall"))
-            end
             files_before = list_files
             # Install the package itself.
             puts "Package..."
             package_logs = package.install
             puts
             if package_logs[1] == 0 then
+              # Compute the installation sizes.
+              install_sizes = (list_files - files_before)
+                .find_all {|file_name| File.file?(file_name)}
+                .map {|file_name| "#{file_name}\n#{File.size(file_name)}"}
               # Uninstall the package.
               uninstall_logs = package.remove
               files_after = list_files
@@ -98,7 +98,8 @@ class Run
       end
       @results << [package.name, package.version, result, *lint,
         *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
-        *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n")]
+        *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n"),
+        install_sizes.join("\n")]
     end
   end
 
@@ -118,11 +119,19 @@ class Run
       "Deps command", "Deps status", "Deps duration", "Deps output",
       "Package command", "Package status", "Package duration", "Package output",
       "Uninstall command", "Uninstall status", "Uninstall duration", "Uninstall output",
-      "Missing removes", "Mistake removes"]
+      "Missing removes", "Mistake removes", "Install sizes"]
     database.add_bench(titles)
     for result in @results do
       database.add_bench(result)
     end
+  end
+
+private
+  # The list of currently installed files in the OPAM hierarchy.
+  def list_files
+    opam_root = File.join(Dir.home, ".opam", `opam switch show`.strip)
+    Dir.glob(File.join(opam_root, "**", "*")) -
+      Dir.glob(File.join(opam_root, "reinstall"))
   end
 end
 
