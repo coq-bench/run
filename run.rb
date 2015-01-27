@@ -105,6 +105,10 @@ class Run
 
   # Save the results of the bench to the database.
   def write_to_database(repository)
+    # Display the final list of packages.
+    puts
+    puts "\e[1;34mSaving the results into `../database/`.\e[0m"
+    system("opam", "list")
     os = `uname -s`.strip
     hardware = `uname -m`.strip
     ocaml = `ocamlc -version`.strip
@@ -161,6 +165,8 @@ def run(repository, repositories)
   system(save_command)
   # Run the bench.
   run.bench
+  # Copy the `~/.opam_backup` folder to `~/.opam`.
+  system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # Save the results to the database.
   run.write_to_database(repository)
 end
