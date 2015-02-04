@@ -104,33 +104,6 @@ class Run
     result == "Success"
   end
 
-  # Save the results of the bench to the database.
-  def write_to_database(repository)
-    # Display the final list of packages.
-    puts
-    puts "\e[1;34mSaving the results into `../database/`.\e[0m"
-    system("opam", "list")
-    os = `uname -s`.strip
-    hardware = `uname -m`.strip
-    ocaml = `ocamlc -version`.strip
-    opam = `opam --version`.strip
-    coq = `opam info --field=version coq`.strip
-    database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
-
-    titles = ["Name", "Version", "Status",
-      "Lint command", "Lint status", "Lint duration", "Lint output",
-      "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
-      "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
-      "Deps command", "Deps status", "Deps duration", "Deps output",
-      "Package command", "Package status", "Package duration", "Package output",
-      "Uninstall command", "Uninstall status", "Uninstall duration", "Uninstall output",
-      "Missing removes", "Mistake removes", "Install sizes"]
-    database.add_bench(titles)
-    for result in @results do
-      database.add_bench(result)
-    end
-  end
-
   def next_package
     min_package = min_cost = nil
     for package in @packages do
@@ -169,6 +142,40 @@ class Run
         explore(new_branch)
       end
       explore(branch)
+    end
+  end
+
+  # TODO: do something for wrong packages
+  def others
+    for package in @packages do
+    end
+  end
+
+  # Save the results of the bench to the database.
+  def write_to_database(repository)
+    # Display the final list of packages.
+    puts
+    puts "\e[1;34mSaving the results into `../database/`.\e[0m"
+    system("opam", "list")
+    os = `uname -s`.strip
+    hardware = `uname -m`.strip
+    ocaml = `ocamlc -version`.strip
+    opam = `opam --version`.strip
+    coq = `opam info --field=version coq`.strip
+    database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
+
+    titles = ["Name", "Version", "Status",
+      "Lint command", "Lint status", "Lint duration", "Lint output",
+      "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
+      "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
+      "Deps command", "Deps status", "Deps duration", "Deps output",
+      "Package command", "Package status", "Package duration", "Package output",
+      "Uninstall command", "Uninstall status", "Uninstall duration", "Uninstall output",
+      "Missing removes", "Mistake removes", "Install sizes"]
+    database.add_bench(titles)
+    for package, result in @results do
+      name, version = package.split(".", 2)
+      database.add_bench([name, version] + result)
     end
   end
 
