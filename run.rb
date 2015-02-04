@@ -149,7 +149,7 @@ def run(repository, repositories)
   puts "\e[1;34mBenching the #{repository} repository:\e[0m"
   # List all packages.
   packages = Opam.all_packages(repositories)
-  puts "Packages to bench:"
+  puts "#{packages.size} packages to bench:"
   for package in packages do
     puts "- #{package.name} #{package.version}"
   end
