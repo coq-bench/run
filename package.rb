@@ -30,12 +30,12 @@ class Package
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["ulimit -Sv 2000000; timeout 5m opam install -y --deps-only #{to_s}"])
+    run(["ulimit -Sv 2000000; opam list; opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
   def install
-    run(["ulimit -Sv 2000000; timeout 5m opam install -y --verbose #{to_s}"])
+    run(["ulimit -Sv 2000000; opam list; opam install -y --verbose #{to_s}"])
   end
 
   # Remove the package.

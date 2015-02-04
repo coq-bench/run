@@ -8,99 +8,100 @@ class Run
   def initialize(packages)
     @packages = packages
     @results = {} # name.version => result
+    @failures = {} # name.version => bool
   end
 
-  # Bench the packages.
-  def bench
-    for package in @packages do
-    # for package in [Package.new("stable", "coq:function-ninjas", "1.0.0")] do
-      # Display the package name.
+  # Bench one package.
+  def bench(package, new_branch)
+    # Display the package name.
+    puts
+    puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
+
+    # Initialize result variables.
+    lint = package.dummy
+    dry_logs_with_coq = package.dummy
+    dry_logs_without_coq = package.dummy
+    deps_logs = package.dummy
+    package_logs = package.dummy
+    uninstall_logs = package.dummy
+    missing_removes = mistake_removes = install_sizes = []
+
+    # Display the list of installed packages.
+    system("opam", "list")
+
+    # Run the lint.
+    lint = package.lint
+    if lint[1] != 0 then
       puts
-      puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
-
-      # Initialize result variables.
-      lint = package.dummy
-      dry_logs_with_coq = package.dummy
-      dry_logs_without_coq = package.dummy
-      deps_logs = package.dummy
-      package_logs = package.dummy
-      uninstall_logs = package.dummy
-      missing_removes = mistake_removes = install_sizes = []
-
-      # Copy the `~/.opam_backup` folder to `~/.opam`.
-      system("rsync -a --delete ~/.opam_backup/ ~/.opam")
-
-      # Display the list of installed packages (should be almost empty).
-      system("opam", "list")
-
-      # Run the lint.
-      lint = package.lint
-      if lint[1] != 0 then
-        puts
-        puts "\e[1mLint error.\e[0m"
-        result = "LintError"
+      puts "\e[1mLint error.\e[0m"
+      result = "LintError"
+    else
+      # Run a dry install with the current coq.
+      dry_logs_with_coq = package.dry_install_with_coq
+      puts dry_logs_with_coq[3]
+      puts
+      # Test if the package is not installable.
+      if dry_logs_with_coq[1] != 0 then
+        # Test if the package can be installed without the current Coq.
+        dry_logs_without_coq = package.dry_install_without_coq
+        puts dry_logs_without_coq[3]
+        if dry_logs_without_coq[1] == 0 then
+          puts
+          puts "\e[1mIncompatible with the current Coq version.\e[0m"
+          result = "NotCompatible"
+        else
+          puts
+          puts "\e[1mThe dependencies cannot be resolved.\e[0m"
+          result = "DepsError"
+        end
       else
-        # Run a dry install with the current coq.
-        dry_logs_with_coq = package.dry_install_with_coq
-        puts dry_logs_with_coq[3]
-        puts
-        # Test if the package is not installable.
-        if dry_logs_with_coq[1] != 0 then
-          # Test if the package can be installed without the current Coq.
-          dry_logs_without_coq = package.dry_install_without_coq
-          puts dry_logs_without_coq[3]
-          if dry_logs_without_coq[1] == 0 then
-            puts
-            puts "\e[1mIncompatible with the current Coq version.\e[0m"
-            result = "NotCompatible"
+        # Install only the dependencies.
+        puts "Dependencies..."
+        deps_logs = package.install_dependencies
+        if deps_logs[1] == 0 then
+          files_before = list_files
+          # Install the package itself.
+          puts "Package..."
+          package_logs = package.install
+          puts
+          if package_logs[1] == 0 then
+            # Create a new branch.
+            system("cd ~/.opam && git checkout --quiet -b #{new_branch} && git add . && git commit --quiet -m \"#{package}\"")
+            # Compute the installation sizes.
+            install_sizes = (list_files - files_before)
+              .find_all {|file_name| File.file?(file_name)}
+              .map {|file_name| "#{file_name}\n#{File.size(file_name)}"}
+            # Uninstall the package.
+            uninstall_logs = package.remove
+            files_after = list_files
+            missing_removes = files_after - files_before
+            mistake_removes = files_before - files_after
+            if uninstall_logs[1] == 0 && missing_removes + mistake_removes == [] then
+              puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
+              result = "Success"
+            else
+              puts "\e[1mError with the uninstallation.\e[0m"
+              result = "UninstallError"
+            end
+            # Revert the uninstallation.
+            system("cd ~/.opam && git checkout --quiet -- .")
           else
-            puts
-            puts "\e[1mThe dependencies cannot be resolved.\e[0m"
-            result = "DepsError"
+            puts "\e[1mError with the package.\e[0m"
+            result = "Error"
           end
         else
-          # Install only the dependencies.
-          puts "Dependencies..."
-          deps_logs = package.install_dependencies
-          if deps_logs[1] == 0 then
-            files_before = list_files
-            # Install the package itself.
-            puts "Package..."
-            package_logs = package.install
-            puts
-            if package_logs[1] == 0 then
-              # Compute the installation sizes.
-              install_sizes = (list_files - files_before)
-                .find_all {|file_name| File.file?(file_name)}
-                .map {|file_name| "#{file_name}\n#{File.size(file_name)}"}
-              # Uninstall the package.
-              uninstall_logs = package.remove
-              files_after = list_files
-              missing_removes = files_after - files_before
-              mistake_removes = files_before - files_after
-              if uninstall_logs[1] == 0 && missing_removes + mistake_removes == [] then
-                puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
-                result = "Success"
-              else
-                puts "\e[1mError with the uninstallation.\e[0m"
-                result = "UninstallError"
-              end
-            else
-              puts "\e[1mError with the package.\e[0m"
-              result = "Error"
-            end
-          else
-            puts
-            puts "\e[1mError in installation of the dependencies.\e[0m"
-            result = "DepsError"
-          end
+          puts
+          puts "\e[1mError in installation of the dependencies.\e[0m"
+          result = "DepsError"
         end
       end
-      @results << [package.name, package.version, result, *lint,
-        *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
-        *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n"),
-        install_sizes.join("\n")]
     end
+    @results[package.to_s] = [result, *lint,
+      *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
+      *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n"),
+      install_sizes.join("\n")]
+    @failures[package.to_s] = result != "Success"
+    result == "Success"
   end
 
   # Save the results of the bench to the database.
@@ -133,7 +134,7 @@ class Run
   def next_package
     min_package = min_cost = nil
     for package in @packages do
-      unless min_cost == 1 || @results[package.to_s] then
+      unless min_cost == 1 || @results[package.to_s] || @failures[package.to_s] then
         _, status = Open3.capture2e("opam install --show-action --json=~/output.json #{package}")
         if status.to_i then
           json = JSON.parse(File.read("#{Dir.home}/output.json"))
@@ -142,9 +143,13 @@ class Run
             if json["to-remove"].size == 0 then
               json = json["to-proceed"]
               if json.all? {|json| json.keys == ["install"]} then
-                if min_cost.nil? || min_cost > json.size then
-                  min_cost = json.size
-                  min_package = package
+                if json.any? {|json| @failures[json["install"]["name"] + "." + json["install"]["version"]]} then
+                  @failures[package.to_s] = true
+                else
+                  if min_cost.nil? || min_cost > json.size then
+                    min_cost = json.size
+                    min_package = package
+                  end
                 end
               end
             end
@@ -155,28 +160,16 @@ class Run
     min_package
   end
 
-  def explore
+  def explore(branch)
+    system("cd ~/.opam && git checkout --quiet #{branch}")
     package = next_package
     if package then
-      puts
-      puts
-      puts
-      puts package
-      system("opam install -y --deps-only #{package}")
-      beginning = Time.now
-      system("opam install -y #{package}")
-      duration = Time.now - beginning
-      @results[package.to_s] = duration
-      system("cd ~/.opam && git checkout --quiet -b #{package.to_s.gsub(":", "@")} && git add . && git commit --quiet -m \"New package installed.\"")
-      system("opam list")
-      explore
-    else
-
+      new_branch = package.to_s.gsub(":", "@")
+      if bench(package, new_branch) then
+        explore(new_branch)
+      end
+      explore(branch)
     end
-  end
-
-  def display_results
-    puts @results
   end
 
 private
@@ -214,12 +207,13 @@ def run(repository, repositories)
   # system(save_command)
   # Run the bench.
   system("cd ~/.opam && git init && git add . && git commit --quiet -m \"Initial files.\"")
-  run.explore
-  run.display_results
+  run.explore("master")
+  puts
+  system("cd ~/.opam && git log --graph --oneline --all")
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
-  # # Save the results to the database.
-  # run.write_to_database(repository)
+  # Save the results to the database.
+  run.write_to_database(repository)
 end
 
 case ARGV[0]
