@@ -130,27 +130,33 @@ class Run
     end
   end
 
-  def explore
-    costs = {} # name.version => number of installations
+  def next_package
+    min_package = min_cost = nil
     for package in @packages do
-      unless @results[package.to_s] then
-        status = system("opam install --show-action --json=~/output.json #{package}")
-        if status then
+      unless min_cost == 1 || @results[package.to_s] then
+        _, status = Open3.capture2e("opam install --show-action --json=~/output.json #{package}")
+        if status.to_i then
           json = JSON.parse(File.read("#{Dir.home}/output.json"))
           if json.size == 1 then
             json = json[0]
             if json["to-remove"].size == 0 then
               json = json["to-proceed"]
               if json.all? {|json| json.keys == ["install"]} then
-                costs[package.to_s] = json.size
+                if min_cost.nil? || min_cost > json.size then
+                  min_cost = json.size
+                  min_package = package
+                end
               end
             end
           end
         end
-        # @results[package.to_s] = "gre"
       end
     end
-    puts costs
+    min_package
+  end
+
+  def explore
+    puts next_package
   end
 
 private
