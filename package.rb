@@ -30,12 +30,12 @@ class Package
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["ulimit -Sv 2000000; timeout 600 opam install -y --deps-only #{to_s}"])
+    run(["ulimit -Sv 2000000; timeout 5m opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
   def install
-    run(["ulimit -Sv 2000000; timeout 600 opam install -y --verbose #{to_s}"])
+    run(["ulimit -Sv 2000000; timeout 5m opam install -y --verbose #{to_s}"])
   end
 
   # Remove the package.
@@ -49,10 +49,12 @@ class Package
   end
 
 private
-  # Run a command and give the return code, the duration and the output.
+  # Run a command and give the return code, the duration and the output. Give an
+  # empty output on success.
   def run(command)
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
+    output = "" if status.to_i == 0
     duration = (Time.now - starting_time).to_i
     [command.join(" "), status.to_i, duration, output.force_encoding("UTF-8")]
   end
