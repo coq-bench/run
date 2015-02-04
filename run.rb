@@ -8,16 +8,20 @@ class Run
   def initialize(packages)
     @packages = packages
     @results = {} # name.version => result
-    @failures = {} # name.version => bool
+    @failures = {} # name.version => the wrong dependency or a boolean
   end
 
   # Bench one package.
-  def bench(package, new_branch)
+  def bench(package, new_branch, wrong_dependency)
     # Display the package name.
     puts
     puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
+    # Clean the state.
+    system("cd ~/.opam && git checkout --quiet -- .")
+
     # Initialize result variables.
+    context = `opam list`
     lint = package.dummy
     dry_logs_with_coq = package.dummy
     dry_logs_without_coq = package.dummy
@@ -57,7 +61,9 @@ class Run
       else
         # Install only the dependencies.
         puts "Dependencies..."
-        deps_logs = package.install_dependencies
+        deps_logs = wrong_dependency ?
+          package.fail("Dependency with errors: #{wrong_dependency}") :
+          package.install_dependencies
         if deps_logs[1] == 0 then
           files_before = list_files
           # Install the package itself.
@@ -83,8 +89,6 @@ class Run
               puts "\e[1mError with the uninstallation.\e[0m"
               result = "UninstallError"
             end
-            # Revert the uninstallation.
-            system("cd ~/.opam && git checkout --quiet -- .")
           else
             puts "\e[1mError with the package.\e[0m"
             result = "Error"
@@ -96,7 +100,7 @@ class Run
         end
       end
     end
-    @results[package.to_s] = [result, *lint,
+    @results[package.to_s] = [result, context, *lint,
       *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
       *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n"),
       install_sizes.join("\n")]
@@ -116,8 +120,12 @@ class Run
             if json["to-remove"].size == 0 then
               json = json["to-proceed"]
               if json.all? {|json| json.keys == ["install"]} then
-                if json.any? {|json| @failures[json["install"]["name"] + "." + json["install"]["version"]]} then
-                  @failures[package.to_s] = true
+                def full_name(json)
+                  json["install"]["name"] + "." + json["install"]["version"]
+                end
+                wrong_dependency = json.find {|json| @failures[full_name(json)]}
+                if wrong_dependency then
+                  @failures[package.to_s] = full_name(wrong_dependency)
                 else
                   if min_cost.nil? || min_cost > json.size then
                     min_cost = json.size
@@ -138,16 +146,22 @@ class Run
     package = next_package
     if package then
       new_branch = package.to_s.gsub(":", "@")
-      if bench(package, new_branch) then
+      if bench(package, new_branch, nil) then
         explore(new_branch)
       end
       explore(branch)
     end
   end
 
-  # TODO: do something for wrong packages
   def others
     for package in @packages do
+      unless @results[package.to_s] then
+        if @failures[package.to_s] then
+          bench(package, "", @failures[package.to_s])
+        else
+          bench(package, "", "unkown")
+        end
+      end
     end
   end
 
@@ -164,7 +178,7 @@ class Run
     coq = `opam info --field=version coq`.strip
     database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
-    titles = ["Name", "Version", "Status",
+    titles = ["Name", "Version", "Status", "Context",
       "Lint command", "Lint status", "Lint duration", "Lint output",
       "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
       "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
@@ -215,10 +229,13 @@ def run(repository, repositories)
   # Run the bench.
   system("cd ~/.opam && git init && git add . && git commit --quiet -m \"Initial files.\"")
   run.explore("master")
+  run.others
   puts
   system("cd ~/.opam && git log --graph --oneline --all")
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
+  # Clean the state.
+  system("cd ~/.opam && git checkout --quiet -- .")
   # Save the results to the database.
   run.write_to_database(repository)
 end

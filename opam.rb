@@ -10,6 +10,7 @@ module Opam
         Package.new(repository, name, version)
       end
     end.flatten(1).sort {|x, y| x.to_s <=> y.to_s}.reverse
+    # [Package.new("stable", "coq:list-string", "1.0.0")]
   end
 
   # Add a repository.
