@@ -156,7 +156,27 @@ class Run
   end
 
   def explore
-    puts next_package
+    package = next_package
+    if package then
+      puts
+      puts
+      puts
+      puts package
+      system("opam install -y --deps-only #{package}")
+      beginning = Time.now
+      system("opam install -y #{package}")
+      duration = Time.now - beginning
+      @results[package.to_s] = duration
+      system("cd ~/.opam && git checkout --quiet -b #{package.to_s.gsub(":", "@")} && git add . && git commit --quiet -m \"New package installed.\"")
+      system("opam list")
+      explore
+    else
+
+    end
+  end
+
+  def display_results
+    puts @results
   end
 
 private
@@ -193,8 +213,9 @@ def run(repository, repositories)
   # puts save_command
   # system(save_command)
   # Run the bench.
-  system("cd ~/.opam && git init")
+  system("cd ~/.opam && git init && git add . && git commit --quiet -m \"Initial files.\"")
   run.explore
+  run.display_results
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # # Save the results to the database.
