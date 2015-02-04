@@ -7,7 +7,7 @@ require_relative 'package'
 class Run
   def initialize(packages)
     @packages = packages
-    @results = []
+    @results = {} # name.version => result
   end
 
   # Bench the packages.
@@ -130,6 +130,29 @@ class Run
     end
   end
 
+  def explore
+    costs = {} # name.version => number of installations
+    for package in @packages do
+      unless @results[package.to_s] then
+        status = system("opam install --show-action --json=~/output.json #{package}")
+        if status then
+          json = JSON.parse(File.read("#{Dir.home}/output.json"))
+          if json.size == 1 then
+            json = json[0]
+            if json["to-remove"].size == 0 then
+              json = json["to-proceed"]
+              if json.all? {|json| json.keys == ["install"]} then
+                costs[package.to_s] = json.size
+              end
+            end
+          end
+        end
+        # @results[package.to_s] = "gre"
+      end
+    end
+    puts costs
+  end
+
 private
   # The list of currently installed files in the OPAM hierarchy.
   def list_files
@@ -159,16 +182,17 @@ def run(repository, repositories)
   for repository in repositories do
     Opam.add_repository(repository)
   end
-  # Save the `~/.opam` folder to `~/.opam_backup`.
-  save_command = "cp -R ~/.opam ~/.opam_backup"
-  puts save_command
-  system(save_command)
+  # # Save the `~/.opam` folder to `~/.opam_backup`.
+  # save_command = "cp -R ~/.opam ~/.opam_backup"
+  # puts save_command
+  # system(save_command)
   # Run the bench.
-  run.bench
-  # Copy the `~/.opam_backup` folder to `~/.opam`.
-  system("rsync -a --delete ~/.opam_backup/ ~/.opam")
-  # Save the results to the database.
-  run.write_to_database(repository)
+  system("cd ~/.opam && git init")
+  run.explore
+  # # Copy the `~/.opam_backup` folder to `~/.opam`.
+  # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
+  # # Save the results to the database.
+  # run.write_to_database(repository)
 end
 
 case ARGV[0]
