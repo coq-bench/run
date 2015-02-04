@@ -6,6 +6,7 @@ RUN apt-get install -y gcc make git
 RUN apt-get install -y curl m4 ruby
 RUN apt-get install -y aspcud
 RUN apt-get install -y g++ coinor-csdp
+RUN apt-get install -y unzip liblablgtk-extras-ocaml-dev
 
 # Bench user
 RUN useradd --create-home bench
