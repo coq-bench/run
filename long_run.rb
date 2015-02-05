@@ -18,7 +18,7 @@ for ocaml in ocamls.shuffle do
     for coq in coqs.shuffle do
     # for coq in coqs do
       system("ruby", "make_dockerfile.rb", jobs.to_s, ocaml, opam, coq)
-      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/home/bench/database run ruby run.rb #{repository} |tee 'log/#{Time.now}'")
+      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/home/bench/database run ruby run.rb #{repository}")
     end
   end
 end
