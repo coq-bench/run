@@ -17,11 +17,9 @@ class Run
     puts
     puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
-    # Clean the state.
-    system("cd ~/.opam && git checkout --force -- .")
-
+    git_clean
     # Initialize result variables.
-    context = `opam list`
+    context = `opam list`.force_encoding("UTF-8")
     lint = package.dummy
     dry_logs_with_coq = package.dummy
     dry_logs_without_coq = package.dummy
@@ -111,11 +109,8 @@ class Run
   # Bench all the packages which have unsolvable dependency constraints.
   def not_compatible
     for package in @packages do
-      # Clean the state.
-      system("cd ~/.opam && git checkout --force -- .")
-
-      command, status, _, _ = package.dry_install_with_coq
-      puts command, status
+      git_clean
+      _, status, _, _ = package.dry_install_with_coq
       unless status == 0 then
         bench(package, "", nil)
       end
@@ -157,6 +152,7 @@ class Run
 
   def explore(branch)
     system("cd ~/.opam && git checkout --force #{branch}")
+    git_clean
     package = next_package
     if package then
       new_branch = package.to_s.gsub(":", "@")
@@ -169,6 +165,7 @@ class Run
 
   def others
     system("cd ~/.opam && git checkout --force master")
+    git_clean
     for package in @packages do
       unless @results[package.to_s] then
         if @failures[package.to_s] then
@@ -215,6 +212,11 @@ private
     Dir.glob(File.join(opam_root, "**", "*")) -
       Dir.glob(File.join(opam_root, "reinstall"))
   end
+
+  # Clean the current state.
+  def git_clean
+    system("cd ~/.opam && git checkout --force -- . && git clean --force -d")
+  end
 end
 
 def puts_usage
@@ -247,7 +249,7 @@ def run(repository, repositories)
   run.explore("master")
   run.others
   puts
-  system("cd ~/.opam && git log --graph --oneline --all")
+  puts `cd ~/.opam && git log --graph --oneline --all`
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # Clean the state.
