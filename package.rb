@@ -21,21 +21,21 @@ class Package
 
   def dry_install_with_coq
     coq_version = `opam info --field=version coq`.strip
-    run(["opam", "install", "-y", "--dry-run", to_s, "coq.#{coq_version}"])
+    run(["opam", "install", "-y", "--show-action", to_s, "coq.#{coq_version}"])
   end
 
   def dry_install_without_coq
-    run(["opam remove -y coq; opam install -y --dry-run #{to_s}"])
+    run(["opam remove -y coq; opam install -y --show-action #{to_s}"])
   end
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["ulimit -Sv 2000000; timeout 5m opam install -y --deps-only #{to_s}"])
+    run(["ulimit -Sv 2000000; timeout 1m opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
   def install
-    run(["ulimit -Sv 2000000; timeout 5m opam install -y --verbose #{to_s}"])
+    run(["ulimit -Sv 2000000; timeout 15 opam install -y --verbose #{to_s}"])
   end
 
   # Remove the package.

@@ -18,7 +18,7 @@ class Run
     puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
     # Clean the state.
-    system("cd ~/.opam && git checkout --quiet -- .")
+    system("cd ~/.opam && git checkout --force -- .")
 
     # Initialize result variables.
     context = `opam list`
@@ -72,7 +72,7 @@ class Run
           puts
           if package_logs[1] == 0 then
             # Create a new branch.
-            system("cd ~/.opam && git checkout --quiet -b #{new_branch} && git add . && git commit --quiet -m \"#{package}\"")
+            system("cd ~/.opam && git checkout -b #{new_branch} && git add . && git commit -m \"#{package}\"")
             # Compute the installation sizes.
             install_sizes = (list_files - files_before)
               .find_all {|file_name| File.file?(file_name)}
@@ -106,6 +106,20 @@ class Run
       install_sizes.join("\n")]
     @failures[package.to_s] = result != "Success"
     result == "Success"
+  end
+
+  # Bench all the packages which have unsolvable dependency constraints.
+  def not_compatible
+    for package in @packages do
+      # Clean the state.
+      system("cd ~/.opam && git checkout --force -- .")
+
+      command, status, _, _ = package.dry_install_with_coq
+      puts command, status
+      unless status == 0 then
+        bench(package, "", nil)
+      end
+    end
   end
 
   def next_package
@@ -142,7 +156,7 @@ class Run
   end
 
   def explore(branch)
-    system("cd ~/.opam && git checkout --quiet #{branch}")
+    system("cd ~/.opam && git checkout --force #{branch}")
     package = next_package
     if package then
       new_branch = package.to_s.gsub(":", "@")
@@ -154,6 +168,7 @@ class Run
   end
 
   def others
+    system("cd ~/.opam && git checkout --force master")
     for package in @packages do
       unless @results[package.to_s] then
         if @failures[package.to_s] then
@@ -227,7 +242,8 @@ def run(repository, repositories)
   # puts save_command
   # system(save_command)
   # Run the bench.
-  system("cd ~/.opam && git init && git add . && git commit --quiet -m \"Initial files.\"")
+  system("cd ~/.opam && git init && git add . && git commit -m \"Initial files.\"")
+  run.not_compatible
   run.explore("master")
   run.others
   puts
@@ -235,7 +251,7 @@ def run(repository, repositories)
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # Clean the state.
-  system("cd ~/.opam && git checkout --quiet -- .")
+  system("cd ~/.opam && git checkout --force -- .")
   # Save the results to the database.
   run.write_to_database(repository)
 end
