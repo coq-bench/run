@@ -215,7 +215,7 @@ private
 
   # Clean the current state.
   def git_clean
-    system("cd ~/.opam && git checkout --force -- . && git clean --force -d")
+    system("cd ~/.opam && git checkout --force -- . && git clean --force")
   end
 end
 
@@ -248,8 +248,10 @@ def run(repository, repositories)
   run.not_compatible
   run.explore("master")
   run.others
+
   puts
   puts `cd ~/.opam && git log --graph --oneline --all`
+
   # # Copy the `~/.opam_backup` folder to `~/.opam`.
   # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # Clean the state.
