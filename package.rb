@@ -21,11 +21,11 @@ class Package
 
   def dry_install_with_coq
     coq_version = `opam info --field=version coq`.strip
-    run(["opam", "install", "-y", "--dry-run", to_s, "coq.#{coq_version}"])
+    run(["opam", "install", "-y", "--show-action", to_s, "coq.#{coq_version}"])
   end
 
   def dry_install_without_coq
-    run(["opam remove -y coq; opam install -y --dry-run #{to_s}"])
+    run(["opam remove -y coq; opam install -y --show-action #{to_s}"])
   end
 
   # Install the dependencies of the package.
@@ -48,12 +48,19 @@ class Package
     run(["true"])
   end
 
+  # Fail with an error message.
+  def fail(message)
+    run(["echo #{message}; false"])
+  end
+
 private
-  # Run a command and give the return code, the duration and the output.
+  # Run a command and give the return code, the duration and the output. Give an
+  # empty output on success.
   def run(command)
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
+    output = "" if status.to_i == 0
     duration = (Time.now - starting_time).to_i
-    [command.join(" "), status.to_i, duration, output.force_encoding("UTF-8")]
+    [command.join(" "), status.to_i, duration, output]
   end
 end

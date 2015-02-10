@@ -8,9 +8,9 @@ end
 
 def lint(repository, folder)
   name, version = File.basename(folder).split(".", 2)
-  descr = File.read(File.join(folder, "descr"), encoding: "UTF-8")
-  opam = File.read(File.join(folder, "opam"), encoding: "UTF-8")
-  url = File.read(File.join(folder, "url"), encoding: "UTF-8")
+  descr = File.read(File.join(folder, "descr"), encoding: "binary")
+  opam = File.read(File.join(folder, "opam"), encoding: "binary")
+  url = File.read(File.join(folder, "url"), encoding: "binary")
 
   begin
     unless name.match(/\Acoq\:/) then

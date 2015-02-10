@@ -9,7 +9,8 @@ module Opam
         name, version = File.basename(path).split(".", 2)
         Package.new(repository, name, version)
       end
-    end.flatten(1).sort {|x, y| x.to_s <=> y.to_s}
+    end.flatten(1).sort {|x, y| x.to_s <=> y.to_s}.reverse
+    # [Package.new("stable", "coq:ssreflect", "1.5.0")]
   end
 
   # Add a repository.

@@ -6,6 +6,7 @@ RUN apt-get install -y gcc make git
 RUN apt-get install -y curl m4 ruby
 RUN apt-get install -y aspcud
 RUN apt-get install -y g++ coinor-csdp
+RUN apt-get install -y unzip liblablgtk-extras-ocaml-dev
 
 # Bench user
 RUN useradd --create-home bench
@@ -64,6 +65,9 @@ RUN opam install -y coq.<%= coq %>
 WORKDIR /home/bench
 RUN git clone https://github.com/coq/repo-stable.git stable
 RUN git clone https://github.com/coq/repo-unstable.git unstable
+
+# Initialize Git
+RUN git config --global user.email "bench@ben.ch" && git config --global user.name "Bench B. Bench"
 
 # Initialize the bench folder.
 ADD . /home/bench/run
