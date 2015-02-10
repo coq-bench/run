@@ -1,5 +1,6 @@
 # Run a full list of benches in Docker containers.
 
+mode = "tree"
 jobs = 4
 opam = "1.2.0"
 # ocamls = ["4.01.0", "4.02.1"]
@@ -10,15 +11,13 @@ repositories = ["stable"]
 # coqs = ["8.5beta1", "8.4.5"]
 coqs = ["8.4.5"]
 
-system("mkdir -p log/")
-
 for ocaml in ocamls.shuffle do
   # for repository in repositories.shuffle do
   for repository in repositories do
     for coq in coqs.shuffle do
     # for coq in coqs do
       system("ruby", "make_dockerfile.rb", jobs.to_s, ocaml, opam, coq)
-      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/home/bench/database run ruby run.rb #{repository} ../database/tree")
+      system("docker build --tag=run . && docker run -ti -v `pwd`/../database:/home/bench/database run ruby #{mode}.rb #{repository} ../database/#{mode}")
     end
   end
 end
