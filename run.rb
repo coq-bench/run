@@ -178,7 +178,7 @@ class Run
   end
 
   # Save the results of the bench to the database.
-  def write_to_database(repository)
+  def write_to_database(repository, database)
     # Display the final list of packages.
     puts
     puts "\e[1;34mSaving the results into `../database/`.\e[0m"
@@ -188,7 +188,7 @@ class Run
     ocaml = `ocamlc -version`.strip
     opam = `opam --version`.strip
     coq = `opam info --field=version coq`.strip
-    database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
+    database = Database.new(database, "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
     titles = ["Name", "Version", "Status", "Context",
       "Lint command", "Lint status", "Lint duration", "Lint output",
@@ -220,12 +220,13 @@ private
 end
 
 def puts_usage
-  puts "Usage: ruby run.rb repo"
+  puts "Usage: ruby run.rb repo database"
   puts "  stable: the stable repository"
   puts "  unstable: the unstable repository"
+  exit(1)
 end
 
-def run(repository, repositories)
+def run(repository, repositories, database)
   puts "\e[1;34mBenching the #{repository} repository:\e[0m"
   # List all packages.
   packages = Opam.all_packages(repositories)
@@ -239,10 +240,6 @@ def run(repository, repositories)
   for repository in repositories do
     Opam.add_repository(repository)
   end
-  # # Save the `~/.opam` folder to `~/.opam_backup`.
-  # save_command = "cp -R ~/.opam ~/.opam_backup"
-  # puts save_command
-  # system(save_command)
   # Run the bench.
   system("cd ~/.opam && git init && git add . && git commit -m \"Initial files.\"")
   run.not_compatible
@@ -252,23 +249,21 @@ def run(repository, repositories)
   puts
   puts `cd ~/.opam && git log --graph --oneline --all`
 
-  # # Copy the `~/.opam_backup` folder to `~/.opam`.
-  # system("rsync -a --delete ~/.opam_backup/ ~/.opam")
-  # Clean the state.
-  system("cd ~/.opam && git checkout --force -- .")
+  run.git_clean
   # Save the results to the database.
-  run.write_to_database(repository)
+  run.write_to_database(repository, database)
 end
 
-case ARGV[0]
-when "-h", "--help", "help"
-  puts_usage
-  exit(0)
-when "stable"
-  run("stable", ["stable"])
-when "unstable"
-  run("unstable", ["stable", "unstable"])
+if ARGV.size == 2 then
+  repo, database = ARGV
+  case repo
+  when "stable"
+    run("stable", ["stable"], database)
+  when "unstable"
+    run("unstable", ["stable", "unstable"], database)
+  else
+    puts_usage
+  end
 else
   puts_usage
-  exit(1)
 end
