@@ -14,7 +14,7 @@ class Database
 
   def add_bench(result)
     FileUtils.mkdir_p(folder_name)
-    CSV.open(file_name, "a", encoding: "UTF-8") do |csv|
+    CSV.open(file_name, "a", encoding: "binary") do |csv|
       csv << result.map {|s| s.to_s.force_encoding("binary")}
     end
   end

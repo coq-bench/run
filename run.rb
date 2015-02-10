@@ -19,7 +19,7 @@ class Run
 
     git_clean
     # Initialize result variables.
-    context = `opam list`.force_encoding("UTF-8")
+    context = `opam list`
     lint = package.dummy
     dry_logs_with_coq = package.dummy
     dry_logs_without_coq = package.dummy

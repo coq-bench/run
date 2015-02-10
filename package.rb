@@ -61,6 +61,6 @@ private
     output, status = Open3.capture2e(*command)
     output = "" if status.to_i == 0
     duration = (Time.now - starting_time).to_i
-    [command.join(" "), status.to_i, duration, output.force_encoding("UTF-8")]
+    [command.join(" "), status.to_i, duration, output]
   end
 end
