@@ -181,7 +181,7 @@ class Run
   def write_to_database(repository, database)
     # Display the final list of packages.
     puts
-    puts "\e[1;34mSaving the results into `../database/`.\e[0m"
+    puts "\e[1;34mSaving the results into `#{database}`.\e[0m"
     system("opam", "list")
     os = `uname -s`.strip
     hardware = `uname -m`.strip
@@ -205,17 +205,17 @@ class Run
     end
   end
 
+  # Clean the current state.
+  def git_clean
+    system("cd ~/.opam && git checkout --force -- . && git clean --force")
+  end
+
 private
   # The list of currently installed files in the OPAM hierarchy.
   def list_files
     opam_root = File.join(Dir.home, ".opam", `opam switch show`.strip)
     Dir.glob(File.join(opam_root, "**", "*")) -
       Dir.glob(File.join(opam_root, "reinstall"))
-  end
-
-  # Clean the current state.
-  def git_clean
-    system("cd ~/.opam && git checkout --force -- . && git clean --force")
   end
 end
 

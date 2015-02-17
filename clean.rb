@@ -19,6 +19,7 @@ class Run
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
       # Initialize result variables.
+      context = `opam list`
       lint = package.dummy
       dry_logs_with_coq = package.dummy
       dry_logs_without_coq = package.dummy
@@ -96,7 +97,7 @@ class Run
           end
         end
       end
-      @results << [package.name, package.version, result, *lint,
+      @results << [package.name, package.version, result, context, *lint,
         *dry_logs_with_coq, *dry_logs_without_coq, *deps_logs, *package_logs,
         *uninstall_logs, missing_removes.join("\n"), mistake_removes.join("\n"),
         install_sizes.join("\n")]
@@ -104,19 +105,19 @@ class Run
   end
 
   # Save the results of the bench to the database.
-  def write_to_database(repository)
+  def write_to_database(repository, database)
     # Display the final list of packages.
     puts
-    puts "\e[1;34mSaving the results into `../database/`.\e[0m"
+    puts "\e[1;34mSaving the results into `#{database}`.\e[0m"
     system("opam", "list")
     os = `uname -s`.strip
     hardware = `uname -m`.strip
     ocaml = `ocamlc -version`.strip
     opam = `opam --version`.strip
     coq = `opam info --field=version coq`.strip
-    database = Database.new("../database", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
+    database = Database.new("#{database}", "#{os}-#{hardware}-#{ocaml}-#{opam}", repository, coq, Time.now)
 
-    titles = ["Name", "Version", "Status",
+    titles = ["Name", "Version", "Status", "Context",
       "Lint command", "Lint status", "Lint duration", "Lint output",
       "Dry with Coq command", "Dry with Coq status", "Dry with Coq duration", "Dry with Coq output",
       "Dry without Coq command", "Dry without Coq status", "Dry without Coq duration", "Dry without Coq output",
@@ -143,9 +144,10 @@ def puts_usage
   puts "Usage: ruby run.rb repo"
   puts "  stable: the stable repository"
   puts "  unstable: the unstable repository"
+  exit(1)
 end
 
-def run(repository, repositories)
+def run(repository, repositories, database)
   puts "\e[1;34mBenching the #{repository} repository:\e[0m"
   # List all packages.
   packages = Opam.all_packages(repositories)
@@ -168,18 +170,19 @@ def run(repository, repositories)
   # Copy the `~/.opam_backup` folder to `~/.opam`.
   system("rsync -a --delete ~/.opam_backup/ ~/.opam")
   # Save the results to the database.
-  run.write_to_database(repository)
+  run.write_to_database(repository, database)
 end
 
-case ARGV[0]
-when "-h", "--help", "help"
-  puts_usage
-  exit(0)
-when "stable"
-  run("stable", ["stable"])
-when "unstable"
-  run("unstable", ["stable", "unstable"])
+if ARGV.size == 2 then
+  repo, database = ARGV
+  case repo
+  when "stable"
+    run("stable", ["stable"], database)
+  when "unstable"
+    run("unstable", ["stable", "unstable"], database)
+  else
+    puts_usage
+  end
 else
   puts_usage
-  exit(1)
 end

@@ -23,7 +23,7 @@ def lint(repository, folder)
       raise "The description should end by a dot (.) to ensure uniformity."
     end
     unless opam.match("%{jobs}%") then
-      raise "The build script should use the `%{jobs}%` variable to speedup building time. For example:
+      raise "The build script should use the `%{jobs}%` variable to speedup compilation time. For example:
 build: [
   [make \"-j%{jobs}%\"]
   [make \"install\"]
