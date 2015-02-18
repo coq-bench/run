@@ -1,17 +1,19 @@
 # Run a full list of benches in Docker containers.
 
 jobs = 4
-# opams = ["1.2.0", "1.2.1-beta"]
-opams = ["1.2.0"]
+opams = ["1.2.0", "1.2.1-beta3"]
+# opams = ["1.2.1-beta3"]
+# opams = ["1.2.0"]
 # ocamls = ["4.01.0", "4.02.1"]
 ocamls = ["4.02.1"]
 repositories = ["stable", "unstable"]
 # repositories = ["stable"]
 # coqs = ["8.4pl4", "8.4.5", "8.4.dev", "8.5beta1", "8.5.dev", "dev", "hott"]
-coqs = ["8.4.5", "8.5.dev"]
+coqs = ["8.4.5", "8.5.dev", "dev", "hott"]
 # coqs = ["8.4.5"]
-# modes = ["clean", "tree"]
-modes = ["clean"]
+modes = ["clean", "tree"]
+# modes = ["clean"]
+# modes = ["tree"]
 
 for opam in opams do
   for ocaml in ocamls do
