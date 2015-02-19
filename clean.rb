@@ -1,5 +1,6 @@
 # Update the CSV database with a new bench suite.
 require 'fileutils'
+require 'pathname'
 require_relative 'database'
 require_relative 'opam'
 require_relative 'package'
@@ -18,6 +19,9 @@ class Run
       puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
 
+      # Copy the `~/.opam_backup` folder to `~/.opam`.
+      system("rsync -a --delete ~/.opam_backup/ ~/.opam")
+
       # Initialize result variables.
       context = `opam list`
       lint = package.dummy
@@ -27,9 +31,6 @@ class Run
       package_logs = package.dummy
       uninstall_logs = package.dummy
       missing_removes = mistake_removes = install_sizes = []
-
-      # Copy the `~/.opam_backup` folder to `~/.opam`.
-      system("rsync -a --delete ~/.opam_backup/ ~/.opam")
 
       # Display the list of installed packages (should be almost empty).
       system("opam", "list")
@@ -73,7 +74,12 @@ class Run
               # Compute the installation sizes.
               install_sizes = (list_files - files_before)
                 .find_all {|file_name| File.file?(file_name)}
-                .map {|file_name| "#{file_name}\n#{File.size(file_name)}"}
+                .map do |file_name|
+                  size = File.size(file_name)
+                  install_root = Pathname.new("/home/bench/.opam/system/")
+                  relative_name = Pathname.new(file_name).relative_path_from(install_root).to_s
+                  "#{relative_name}\n#{size}"
+                end
               # Uninstall the package.
               uninstall_logs = package.remove
               files_after = list_files
