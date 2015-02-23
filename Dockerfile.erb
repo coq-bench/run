@@ -16,9 +16,8 @@ ENV HOME /home/bench
 # OCaml
 WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/ocaml/archive/<%= ocaml %>.tar.gz |tar -xz
-WORKDIR /home/bench/ocaml-<%= ocaml %>
-RUN ./configure
-RUN make world.opt
+WORKDIR ocaml-<%= ocaml %>
+RUN ./configure && make world.opt
 USER root
 RUN make install
 USER bench
@@ -31,9 +30,8 @@ USER bench
 # Camlp4
 WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/camlp4/archive/<%= camlp4[ocaml] %>.tar.gz |tar -xz
-WORKDIR /home/bench/camlp4-<%= camlp4[ocaml].gsub("+", "-") %>
-RUN ./configure
-RUN make all
+WORKDIR camlp4-<%= camlp4[ocaml].gsub("+", "-") %>
+RUN ./configure && make all
 USER root
 RUN make install
 USER bench
@@ -43,31 +41,26 @@ USER bench
 WORKDIR /home/bench
 RUN curl -L https://github.com/ocaml/opam/archive/<%= opam %>.tar.gz |tar -xz
 WORKDIR opam-<%= opam %>
-RUN ./configure
-RUN make lib-ext
-RUN make
+RUN ./configure && make lib-ext && make
 USER root
 RUN make install
 USER bench
 
 # Initialize OPAM.
-RUN opam init
 ENV OPAMJOBS <%= jobs %>
-
-# We force the cache to be disabled here.
-RUN echo Dockerfile generated at <%= Time.now %>.
-
-# Coq
-RUN opam repo add coqs https://github.com/coq/repo-coqs.git
-RUN opam install -y coq.<%= coq %>
-
-# Repositories
-WORKDIR /home/bench
-RUN git clone https://github.com/coq/repo-stable.git stable
-RUN git clone https://github.com/coq/repo-unstable.git unstable
 
 # Initialize Git
 RUN git config --global user.email "bench@ben.ch" && git config --global user.name "Bench B. Bench"
+
+# Get the HTML.
+WORKDIR /home/bench
+RUN curl -L https://github.com/coq-bench/make-html/archive/no-history.tar.gz |tar -xz
+WORKDIR make-html-no-history
+RUN git clone https://github.com/coq-bench/coq-bench.github.io html
+
+# Add the private key to push to https://github.com/coq-bench/coq-bench.github.io
+ADD id_rsa /home/bench/.ssh/
+RUN chmod 400 /home/bench/.ssh/id_rsa
 
 # Initialize the bench folder.
 ADD . /home/bench/run
