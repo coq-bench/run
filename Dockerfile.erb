@@ -50,18 +50,23 @@ USER bench
 ENV OPAMJOBS <%= jobs %>
 
 # Initialize Git
-RUN git config --global user.email "bench@ben.ch" && git config --global user.name "Bench B. Bench"
-
-# Get the HTML.
-WORKDIR /home/bench
-RUN curl -L https://github.com/coq-bench/make-html/archive/no-history.tar.gz |tar -xz
-WORKDIR make-html-no-history
-RUN git clone https://github.com/coq-bench/coq-bench.github.io html
-
-# Add the private key to push to https://github.com/coq-bench/coq-bench.github.io
-ADD id_rsa /home/bench/.ssh/
-RUN chmod 400 /home/bench/.ssh/id_rsa
+RUN git config --global user.email "bench@ben.ch" && git config --global user.name "Bench B. Bench" && git config --global push.default simple
 
 # Initialize the bench folder.
 ADD . /home/bench/run
+WORKDIR /home/bench/run
+USER root
+RUN chown -R bench:bench .
+USER bench
+
+# Add the private key to push to https://github.com/coq-bench/coq-bench.github.io
+RUN mkdir ~/.ssh && cp id_rsa ~/.ssh/ && chmod 400 ~/.ssh/id_rsa && cp ssh_config ~/.ssh/config
+
+# Get the HTML.
+WORKDIR /home/bench
+RUN curl -L https://github.com/coq-bench/make-html/archive/master.tar.gz |tar -xz
+WORKDIR make-html-master
+RUN git clone git@github.com:coq-bench/coq-bench.github.io.git html
+
+# Start.
 WORKDIR /home/bench/run
