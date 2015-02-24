@@ -15,7 +15,7 @@ while true do
         system("opam init -n")
         # Install Coq.
         system("opam repo add coqs https://github.com/coq/repo-coqs.git")
-        # system("opam install -y coq.#{coq}")
+        system("opam install -y coq.#{coq}")
         # Add the repositories.
         system("git clone https://github.com/coq/repo-stable.git ../stable")
         system("git clone https://github.com/coq/repo-unstable.git ../unstable")
