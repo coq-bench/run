@@ -86,7 +86,10 @@ class Run
             files_after = list_files
             missing_removes = files_after - files_before
             mistake_removes = files_before - files_after
-            if uninstall_logs[1] == 0 && missing_removes + mistake_removes == [] then
+            # For the tree strategy we do not check that there are no missing or
+            # wrong removes, because Git does not track empty directories so it
+            # can generate false errors.
+            if uninstall_logs[1] == 0 then
               puts "\e[1mTotal duration: #{deps_logs[2] + package_logs[2]} s.\e[0m"
               result = "Success"
             else
