@@ -3,8 +3,8 @@
 repositories = ["stable", "unstable"]
 # repositories = ["stable"]
 modes = {
-  clean: ["8.4.5", "8.4.dev", "8.5.dev", "dev", "hott"],
-  tree: ["dev"] }
+  clean: ["8.4.6", "8.4.dev", "8.5.dev", "dev", "hott"],
+  tree: [] }
 
 while true do
   for repository in repositories do
