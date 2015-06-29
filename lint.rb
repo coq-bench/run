@@ -2,7 +2,7 @@
 
 def puts_usage
   puts "Usage: ruby lint.rb repo folder"
-  puts "  repo: stable or unstable"
+  puts "  repo: released or extra-dev"
   puts "  folder: the folder of a package"
 end
 
@@ -38,10 +38,10 @@ homepage: \"https://github.com/user/project\""
 license: \"MIT\""
     end
 
-    # Specific checkes for the stable repository.
-    unless repository != "stable" then
+    # Specific checkes for the released repository.
+    unless repository != "released" then
       unless version.match(/\A[0-9]+\.[0-9]+\.[0-9]+\z/) then
-        raise "Wrong stable version name #{version.inspect}, expected three numbers separated by dots."
+        raise "Wrong released version name #{version.inspect}, expected three numbers separated by dots."
       end
       unless url.match("checksum") then
         raise "A checksum is expected for the archive."
