@@ -148,8 +148,8 @@ end
 
 def puts_usage
   puts "Usage: ruby run.rb repo"
-  puts "  stable: the stable repository"
-  puts "  unstable: the unstable repository"
+  puts "  released: the stable repository"
+  puts "  extra-dev: the development repository"
   exit(1)
 end
 
@@ -182,10 +182,10 @@ end
 if ARGV.size == 2 then
   repo, database = ARGV
   case repo
-  when "stable"
-    run("stable", ["stable"], database)
-  when "unstable"
-    run("unstable", ["stable", "unstable"], database)
+  when "released"
+    run("released", ["released"], database)
+  when "extra-dev"
+    run("extra-dev", ["released", "extra-dev"], database)
   else
     puts_usage
   end

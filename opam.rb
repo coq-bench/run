@@ -5,7 +5,7 @@ module Opam
   # The list of all Coq packages in the given repositories.
   def Opam.all_packages(repositories)
     repositories.map do |repository|
-      Dir.glob("../#{repository}/packages/*/*").map do |path|
+      Dir.glob("opam-coq-archive/#{repository}/packages/*/*").map do |path|
         name, version = File.basename(path).split(".", 2)
         Package.new(repository, name, version)
       end
@@ -15,6 +15,6 @@ module Opam
 
   # Add a repository.
   def Opam.add_repository(repository)
-    system("opam", "repo", "add", "--kind=git", repository, "../#{repository}")
+    system("opam", "repo", "add", repository, "opam-coq-archive/#{repository}")
   end
 end

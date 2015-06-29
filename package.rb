@@ -16,7 +16,7 @@ class Package
   end
 
   def lint
-    run(["ruby", "lint.rb", @repository, "../#{@repository}/packages/#{name}/#{name}.#{version}"])
+    run(["ruby", "lint.rb", @repository, "opam-coq-archive/#{@repository}/packages/#{name}/#{name}.#{version}"])
   end
 
   def dry_install_with_coq

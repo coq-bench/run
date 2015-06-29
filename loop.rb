@@ -1,14 +1,13 @@
 # An infinite loop to run all the benches.
 
-repositories = [:stable, :unstable]
-# repositories = ["stable"]
+repositories = ["released", "extra-dev"]
 # modes = {
 #   clean: ["8.4.5", "8.4.6", "8.4.dev", "8.5.dev", "dev", "hott"],
 #   tree: [] }
 
 coqs = {
-  stable: ["8.3.dev", "8.4.5", "8.4.6~camlp4", "8.4.6", "8.4.dev", "8.5.dev", "dev"],
-  unstable: ["8.4.dev", "8.5.dev", "dev", "hott"]
+  "released" => ["8.3.dev", "8.4.5", "8.4.6~camlp4", "8.4.6", "8.4.dev", "8.5.dev", "dev"],
+  "extra-dev" => ["8.4.dev", "8.5.dev", "dev", "hott"]
 }
 
 while true do
@@ -19,11 +18,10 @@ while true do
       system("rm -Rf ~/.opam*")
       system("opam init -n")
       # Install Coq.
-      system("opam repo add coqs https://github.com/coq/repo-coqs.git")
+      system("opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev")
       if system("opam install -y coq.#{coq}") then
         # Add the repositories.
-        system("rm -Rf ../stable && git clone https://github.com/coq/repo-stable.git ../stable")
-        system("rm -Rf ../unstable && git clone https://github.com/coq/repo-unstable.git ../unstable")
+        system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
         # Run the bench.
         system("ruby #{mode}.rb #{repository} ../database/#{mode}")
         # Update the HTML.
