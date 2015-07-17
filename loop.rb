@@ -30,6 +30,8 @@ while true do
           git commit -m \"Coq #{coq}, repo #{repository}, mode #{mode}.\";
           git push")
       end
+      # Clean the zombies.
+      Process.waitall
     end
   end
 end
