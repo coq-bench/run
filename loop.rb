@@ -1,6 +1,8 @@
 # An infinite loop to run all the benches.
 
-repositories = ["released", "extra-dev"]
+#repositories = ["released", "extra-dev"]
+repositories = ["released"]
+
 # modes = {
 #   clean: ["8.4.5", "8.4.6", "8.4.dev", "8.5.dev", "dev", "hott"],
 #   tree: [] }
