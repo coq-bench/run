@@ -35,7 +35,7 @@ class Package
 
   # Install the package.
   def install
-    run(["opam list; ulimit -Sv 4000000; timeout 5m opam install -y #{to_s}"])
+    run(["opam list; ulimit -Sv 4000000; timeout 10m opam install -y #{to_s}"])
   end
 
   # Remove the package.
