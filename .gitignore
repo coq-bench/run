@@ -1,6 +1,7 @@
 id_rsa
 Dockerfile
 log/
+log
 
 *.gem
 *.rbc
