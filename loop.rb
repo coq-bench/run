@@ -20,12 +20,13 @@ while true do
       system("rm -Rf ~/.opam*")
       system("opam init -n")
       Process.waitall
+      # Add the repositories.
+      system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
+      system("opam repo add released opam-coq-archive/released") # We add this repository to get the beta versions of Coq.
+      system("opam repo add core-dev opam-coq-archive/core-dev")
       # Install Coq.
-      system("opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev")
       Process.waitall
       if system("opam install -y coq.#{coq}") then
-        # Add the repositories.
-        system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
         # Run the bench.
         system("ruby #{mode}.rb #{repository} ../database/#{mode}")
         Process.waitall
