@@ -1,7 +1,7 @@
 # An infinite loop to run all the benches.
 
-# repositories = ["released", "extra-dev"]
-repositories = ["released"]
+repositories = ["released", "extra-dev"]
+# repositories = ["released"]
 
 # modes = {
 #   clean: ["8.4.5", "8.4.6", "8.4.dev", "8.5.dev", "dev", "hott"],
@@ -22,11 +22,14 @@ while true do
       Process.waitall
       # Add the repositories.
       system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
-      system("opam repo add released opam-coq-archive/released") # We add this repository to get the beta versions of Coq.
+      # We add the `released` repository to get the beta versions of Coq.
+      system("opam repo add released opam-coq-archive/released")
       system("opam repo add core-dev opam-coq-archive/core-dev")
       # Install Coq.
       Process.waitall
       if system("opam install -y coq.#{coq}") then
+        # We remove back the `released` repository.
+        system("opam repo remove released")
         # Run the bench.
         system("ruby #{mode}.rb #{repository} ../database/#{mode}")
         Process.waitall
