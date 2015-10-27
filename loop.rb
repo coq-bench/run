@@ -8,7 +8,7 @@ repositories = ["released", "extra-dev"]
 #   tree: [] }
 
 coqs = {
-  "released" => ["8.3.dev", "8.4.6~camlp4", "8.4.6", "8.4.dev", "8.5~beta2", "8.5.0~beta2", "8.5.dev", "dev"],
+  "released" => ["8.3.dev", "8.4.6~camlp4", "8.4.6", "8.4.dev", "8.5~beta2", "8.5~beta3", "8.5.dev", "dev"],
   "extra-dev" => ["8.4.dev", "8.5.dev", "dev"]
 }
 
