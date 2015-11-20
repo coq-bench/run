@@ -22,8 +22,6 @@ while true do
       Process.waitall
       # Add the repositories.
       system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
-      # We add the `released` repository to get the beta versions of Coq.
-      system("opam repo add released opam-coq-archive/released")
       system("opam repo add core-dev opam-coq-archive/core-dev")
       # Install Coq.
       Process.waitall
