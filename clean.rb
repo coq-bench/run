@@ -14,7 +14,7 @@ class Run
   # Bench the packages.
   def bench
     for package in @packages do
-    # for package in [Package.new("stable", "coq:function-ninjas", "1.0.0")] do
+    # for package in [Package.new("stable", "coq-function-ninjas", "1.0.0")] do
       # Display the package name.
       puts
       puts "\e[1;34m#{package.name} #{package.version}:\e[0m"

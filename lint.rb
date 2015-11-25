@@ -13,8 +13,8 @@ def lint(repository, folder)
   url = File.read(File.join(folder, "url"), encoding: "binary")
 
   begin
-    unless name.match(/\Acoq\:/) then
-      raise "The package name should start with \"coq:\"."
+    unless name.match(/\Acoq\-/) then
+      raise "The package name should start with \"coq-\"."
     end
     unless name.match(/\A[a-z0-9:\-_]+\z/) then
       raise "Wrong name #{name.inspect}, expected only small caps (a-z), digits (0-9), dashes, underscores or colons (-, _, :)."
