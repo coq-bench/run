@@ -12,6 +12,12 @@ def lint(repository, folder)
   opam = File.read(File.join(folder, "opam"), encoding: "binary")
   url = File.read(File.join(folder, "url"), encoding: "binary")
 
+  # OPAM lint.
+  unless system("opam lint #{folder}") then
+    exit(1)
+  end
+
+  # Custom lint.
   begin
     unless name.match(/\Acoq\-/) then
       raise "The package name should start with \"coq-\"."
