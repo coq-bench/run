@@ -30,12 +30,12 @@ class Package
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["opam list; ulimit -Sv 4000000; timeout 90m opam install -y --deps-only #{to_s}"])
+    run(["opam list; ulimit -Sv 4000000; timeout 30m opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
   def install
-    run(["opam list; ulimit -Sv 4000000; timeout 90m opam install -y -v #{to_s}"])
+    run(["opam list; ulimit -Sv 4000000; timeout 30m opam install -j1 -y -v #{to_s}"])
   end
 
   # Remove the package.
@@ -59,7 +59,8 @@ private
   def run(command)
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
-    output = "" if status.to_i == 0
+    # 124 is the timeout status.
+    output = "" if status.to_i == 0 || status.to_i == 124
     duration = (Time.now - starting_time).to_i
     [command.join(" "), status.to_i, duration, output]
   end
