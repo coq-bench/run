@@ -43,8 +43,8 @@ USER bench
 
 # OPAM
 WORKDIR /home/bench
-RUN curl -L https://github.com/ocaml/opam/archive/<%= opam %>.tar.gz |tar -xz
-WORKDIR opam-<%= opam %>
+RUN curl -L https://github.com/ocaml/opam/releases/download/<%= opam %>/opam-full-<%= opam %>.tar.gz |tar -xz
+WORKDIR opam-full-<%= opam %>
 RUN ./configure && make lib-ext && make
 USER root
 RUN make install
