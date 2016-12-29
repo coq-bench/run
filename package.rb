@@ -35,7 +35,11 @@ class Package
 
   # Install the package.
   def install
-    run(["opam list; ulimit -Sv 4000000; timeout 30m opam install -j1 -y -v #{to_s}"])
+    slow_packages = [
+      "coq-geocoq"
+    ]
+    timeout = slow_packages.include?(@name) ? "60m" : "30m"
+    run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
   end
 
   # Remove the package.
