@@ -38,7 +38,7 @@ class Package
     slow_packages = [
       "coq-geocoq"
     ]
-    timeout = slow_packages.include?(@name) ? "60m" : "30m"
+    timeout = slow_packages.include?(@name) ? "120m" : "30m"
     run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
   end
 
