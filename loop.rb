@@ -9,6 +9,8 @@ repositories = ["released", "extra-dev"]
 
 coqs = {
   "released" => [
+    "8.5.1",
+    "8.5.2",
     "8.5.3",
     "8.5.dev",
     "8.6.1",
