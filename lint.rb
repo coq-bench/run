@@ -36,9 +36,6 @@ license: \"MIT\""
 
     # Specific checkes for the released repository.
     if repository == "released" then
-      unless version.match(/\A[0-9]+\.[0-9]+\.[0-9]+\z/) || version.match(/\A[0-9]+\.[0-9]+\z/) || version.include?("beta") then
-        raise "Wrong released version name #{version.inspect}, expected three (or two) numbers separated by dots or a name containing the word \"beta\"."
-      end
       unless url.match("checksum") then
         raise "A checksum is expected for the archive."
       end
