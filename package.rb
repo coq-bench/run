@@ -39,7 +39,8 @@ class Package
       "coq-areamethod",
       "coq-color",
       "coq-compcert",
-      "coq-geocoq"
+      "coq-geocoq",
+      "coq-qcert"
     ]
     timeout = slow_packages.include?(@name) ? "400m" : "30m"
     run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
