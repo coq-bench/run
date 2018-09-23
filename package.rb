@@ -43,6 +43,7 @@ class Package
       "coq-areamethod",
       "coq-color",
       "coq-compcert",
+      "coq-corn",
       "coq-geocoq",
       "coq-qcert"
     ]
