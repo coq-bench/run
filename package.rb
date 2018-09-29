@@ -34,7 +34,12 @@ class Package
 
   # Install the dependencies of the package.
   def install_dependencies
-    run(["opam list; ulimit -Sv 4000000; timeout 30m opam install -y --deps-only #{to_s}"])
+    slow_packages = [
+      "mathcomp-character",
+      "mathcomp-odd-order"
+    ]
+    timeout = slow_packages.include?(@name) ? "300m" : "30m"
+    run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
@@ -45,9 +50,12 @@ class Package
       "coq-compcert",
       "coq-corn",
       "coq-geocoq",
-      "coq-qcert"
+      "coq-iris",
+      "coq-mathcomp-field",
+      "coq-qcert",
+      "coq-vst"
     ]
-    timeout = slow_packages.include?(@name) ? "400m" : "30m"
+    timeout = slow_packages.include?(@name) ? "300m" : "30m"
     run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
   end
 
