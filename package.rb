@@ -20,7 +20,9 @@ class Package
   end
 
   def lint
-    run(["ruby", "lint.rb", @repository, path])
+    # We temporarily disable the linter for OPAM 2.
+    #run(["ruby", "lint.rb", @repository, path])
+    run(["true"])
   end
 
   def dry_install_with_coq

@@ -29,7 +29,7 @@ while true do
       mode = :clean
       # Initialize OPAM.
       system("rm -Rf ~/.opam*")
-      system("opam init -n")
+      system("opam init -n --disable-sandboxing || opam init -n")
       Process.waitall
       # Add the repositories.
       system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
