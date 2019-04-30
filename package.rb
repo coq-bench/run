@@ -31,7 +31,7 @@ class Package
   end
 
   def dry_install_without_coq
-    run(["opam remove -y coq; opam install -y --show-action #{to_s}"])
+    run(["opam remove -y coq; opam install -y --show-action --unlock-base #{to_s}"])
   end
 
   # Install the dependencies of the package.

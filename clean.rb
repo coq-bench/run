@@ -53,7 +53,7 @@ class Run
           puts dry_logs_without_coq[3]
           if dry_logs_without_coq[1] == 0 then
             puts
-            puts "\e[1mIncompatible with the current Coq version.\e[0m"
+            puts "\e[1mIncompatible with the current Coq or OCaml version.\e[0m"
             result = "NotCompatible"
           else
             puts
