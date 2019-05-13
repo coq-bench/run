@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Guillaume Claret
 
 RUN apt-get update && apt-get upgrade -y
@@ -8,7 +8,7 @@ RUN apt-get install -y curl m4 ruby
 RUN apt-get install -y aspcud mercurial
 RUN apt-get install -y g++ coinor-csdp
 RUN apt-get install -y unzip liblablgtk-extras-ocaml-dev
-RUN apt-get install -y autoconf perl
+RUN apt-get install -y autoconf perl rsync
 
 # Bench user
 RUN useradd --create-home bench
