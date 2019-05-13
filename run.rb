@@ -23,4 +23,4 @@ File.open("Dockerfile", "w") do |file|
 end
 
 # Run the Dockerfile.
-system("docker build --tag=run . && docker run -ti -v #{File.expand_path(database)}:/home/bench/database run ruby loop.rb")
+system("docker build --tag=run . && docker run --privileged -ti -v #{File.expand_path(database)}:/home/bench/database run ruby loop.rb")
