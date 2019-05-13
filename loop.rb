@@ -36,7 +36,8 @@ while true do
       Process.waitall
       # Add the repositories.
       system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
-      system("opam repo add core-dev opam-coq-archive/core-dev")
+      # We disable the core-dev repo to check that packages can be installed with at least one stable version of Coq.
+      # system("opam repo add core-dev opam-coq-archive/core-dev")
       # Install Coq.
       Process.waitall
       if system("opam install -y coq.#{coq}") then
