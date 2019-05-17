@@ -38,6 +38,7 @@ class Package
   def install_dependencies
     slow_packages = [
       "coq-interval",
+      "coq-libvalidsdp",
       "coq-mathcomp-character",
       "coq-mathcomp-odd-order"
     ]
