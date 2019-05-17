@@ -39,8 +39,11 @@ class Package
     slow_packages = [
       "coq-interval",
       "coq-libvalidsdp",
+      "coq-mathcomp-analysis",
       "coq-mathcomp-character",
-      "coq-mathcomp-odd-order"
+      "coq-mathcomp-odd-order",
+      "coq-mathcomp-real-closed",
+      "coq-mathcomp-sum-of-two-square"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "30m"
     run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
@@ -57,6 +60,7 @@ class Package
       "coq-intuitionistic-nuprl",
       "coq-iris",
       "coq-mathcomp-field",
+      "coq-mathcomp-odd-order",
       "coq-qcert",
       "coq-vst"
     ]
