@@ -1,5 +1,7 @@
 # An infinite loop to run all the benches.
 
+ocaml = ARGV[0]
+
 repositories = ["released", "extra-dev"]
 # repositories = ["released"]
 
@@ -34,6 +36,8 @@ while true do
       system("rm -Rf ~/.opam*")
       system("opam init -n")
       Process.waitall
+      # Create an OCaml switch with the same version as the system, to have a fresh and official install.
+      system("opam switch create ocaml-base-compiler.#{ocaml}")
       # Add the repositories.
       system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
       # We disable the core-dev repo to check that packages can be installed with at least one stable version of Coq.
