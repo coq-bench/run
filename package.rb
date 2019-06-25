@@ -57,7 +57,6 @@ class Package
       "coq-compcert",
       "coq-corn",
       "coq-geocoq",
-      "coq-intuitionistic-nuprl",
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
