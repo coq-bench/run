@@ -23,7 +23,7 @@ class Run
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
 
       # Initialize result variables.
-      context = "#{`opam list`}\n# opam file:\n#{File.read("#{package.path}/opam")}"
+      context = "#{`opam list`}\n\n# opam file:\n#{File.read("#{package.path}/opam")}"
       lint = package.dummy
       dry_logs_with_coq = package.dummy
       dry_logs_without_coq = package.dummy

@@ -46,7 +46,7 @@ class Package
       "coq-mathcomp-sum-of-two-square"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "30m"
-    run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
+    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
   end
 
   # Install the package.
@@ -65,7 +65,7 @@ class Package
       "coq-vst"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "30m"
-    run(["opam list; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
+    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
   end
 
   # Remove the package.
