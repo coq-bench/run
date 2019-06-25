@@ -51,8 +51,9 @@ while true do
         system("ruby #{mode}.rb #{repository} ../database/#{mode}")
         Process.waitall
         # Update the HTML.
+        system("cd ../make-html-master/html && git pull")
         system("cd ../make-html-master && ruby make_html.rb ../database html")
-        system("cd ../make-html-master/html && git pull && git add .;
+        system("cd ../make-html-master/html && git add .;
           git commit -m \"Coq #{coq}, repo #{repository}, mode #{mode}.\";
           git push")
       end
