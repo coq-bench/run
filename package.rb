@@ -41,6 +41,7 @@ class Package
       "coq-libvalidsdp",
       "coq-mathcomp-analysis",
       "coq-mathcomp-character",
+      "coq-mathcomp-field-extra",
       "coq-mathcomp-odd-order",
       "coq-mathcomp-real-closed",
       "coq-mathcomp-sum-of-two-square"
