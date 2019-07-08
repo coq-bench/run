@@ -37,6 +37,7 @@ class Package
   # Install the dependencies of the package.
   def install_dependencies
     slow_packages = [
+      "coq-infotheo",
       "coq-interval",
       "coq-libvalidsdp",
       "coq-mathcomp-analysis",
@@ -44,7 +45,9 @@ class Package
       "coq-mathcomp-field-extra",
       "coq-mathcomp-odd-order",
       "coq-mathcomp-real-closed",
-      "coq-mathcomp-sum-of-two-square"
+      "coq-mathcomp-sum-of-two-square",
+      "coq-monae",
+      "coq-pi-agm"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "30m"
     run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
