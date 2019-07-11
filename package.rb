@@ -49,7 +49,7 @@ class Package
       "coq-monae",
       "coq-pi-agm"
     ]
-    timeout = slow_packages.include?(@name) ? "300m" : "30m"
+    timeout = slow_packages.include?(@name) ? "300m" : "60m"
     run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
   end
 
@@ -67,7 +67,7 @@ class Package
       "coq-qcert",
       "coq-vst"
     ]
-    timeout = slow_packages.include?(@name) ? "300m" : "30m"
+    timeout = slow_packages.include?(@name) ? "300m" : "60m"
     run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
   end
 
