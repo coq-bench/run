@@ -67,6 +67,7 @@ while true do
         # Update the HTML.
         system("cd ../make-html-master/html && git pull")
         system("cd ../make-html-master && ruby make_html.rb ../database html")
+        system("cd ../make-html-master && ruby push_to_gitter.rb ../database ../run/gitter-token coq/opam-bench-reports")
         system("cd ../make-html-master/html && git add .;
           git commit -m \"Coq #{coq}, repo #{repository}, mode #{mode}.\";
           git push")
