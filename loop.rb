@@ -42,36 +42,44 @@ coqs = {
   "extra-dev" => []
 }
 
+configurations = []
+for repository in repositories do
+  for coq in coqs[repository] do
+    configurations << {coq: coq, repository: repository}
+  end
+end
+configurations.shuffle!
+
 while true do
-  for repository in repositories do
-    for coq in coqs[repository] do
-      mode = :clean
-      # Initialize OPAM.
-      system("rm -Rf ~/.opam*")
-      system("opam init -n")
+  for configuration in configurations do
+    mode = :clean
+    coq = configuration[:coq]
+    repository = configuration[:repository]
+    # Initialize OPAM.
+    system("rm -Rf ~/.opam*")
+    system("opam init -n")
+    Process.waitall
+    # Create an OCaml switch with the same version as the system, to have a fresh and official install.
+    system("opam switch create ocaml-base-compiler.#{ocaml}")
+    # Add the repositories.
+    system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
+    # We disable the core-dev repo to check that packages can be installed with at least one stable version of Coq.
+    # system("opam repo add core-dev opam-coq-archive/core-dev")
+    # Install Coq.
+    Process.waitall
+    if system("opam install -y coq.#{coq}") then
+      # We remove back the `released` repository.
+      system("opam repo remove released")
+      # Run the bench.
+      system("ruby #{mode}.rb #{repository} ../database/#{mode}")
       Process.waitall
-      # Create an OCaml switch with the same version as the system, to have a fresh and official install.
-      system("opam switch create ocaml-base-compiler.#{ocaml}")
-      # Add the repositories.
-      system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
-      # We disable the core-dev repo to check that packages can be installed with at least one stable version of Coq.
-      # system("opam repo add core-dev opam-coq-archive/core-dev")
-      # Install Coq.
-      Process.waitall
-      if system("opam install -y coq.#{coq}") then
-        # We remove back the `released` repository.
-        system("opam repo remove released")
-        # Run the bench.
-        system("ruby #{mode}.rb #{repository} ../database/#{mode}")
-        Process.waitall
-        # Update the HTML.
-        system("cd ../make-html-master/html && git pull")
-        system("cd ../make-html-master && ruby make_html.rb ../database html")
-        system("cd ../make-html-master/html && git add .;
-          git commit -m \"Coq #{coq}, repo #{repository}, mode #{mode}.\";
-          git push")
-      end
-      Process.waitall
+      # Update the HTML.
+      system("cd ../make-html-master/html && git pull")
+      system("cd ../make-html-master && ruby make_html.rb ../database html")
+      system("cd ../make-html-master/html && git add .;
+        git commit -m \"Coq #{coq}, repo #{repository}, mode #{mode}.\";
+        git push")
     end
+    Process.waitall
   end
 end
