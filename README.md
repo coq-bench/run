@@ -2,9 +2,8 @@
 Run the benchmarks.
 
 ## Instructions
-There must be the following secret files at the root of the current folder:
-* `id_rsa` giving a private key to access the [coq-bench.github.io](https://github.com/coq-bench/coq-bench.github.io) repository;
-* `gitter-token` giving a token to access the Gitter API.
+There must be the following secret file at the root of the current folder:
+* `id_rsa` giving a private key to access the [coq-bench.github.io](https://github.com/coq-bench/coq-bench.github.io) repository.
 
 Create a folder to save the CSV outputs of the bench:
 

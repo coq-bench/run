@@ -71,9 +71,6 @@ RUN mkdir ~/.ssh && cp id_rsa ~/.ssh/ && chmod 400 ~/.ssh/id_rsa && cp ssh_confi
 WORKDIR /home/bench
 RUN curl -L https://github.com/coq-bench/make-html/archive/master.tar.gz |tar -xz
 WORKDIR make-html-master
-USER root
-RUN gem install ruby-gitter
-USER bench
 RUN git clone git@github.com:coq-bench/coq-bench.github.io.git html
 
 # Start.
