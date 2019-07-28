@@ -3,11 +3,6 @@
 ocaml = ARGV[0]
 
 repositories = ["released", "extra-dev"]
-# repositories = ["released"]
-
-# modes = {
-#   clean: ["8.4.5", "8.4.6", "8.4.dev", "8.5.dev", "dev", "hott"],
-#   tree: [] }
 
 coqs = {
   "released" => [
@@ -37,9 +32,23 @@ coqs = {
     "8.9.0",
     "8.9.1",
     "8.10.0"
-  ].reverse,
-  # "extra-dev" => ["8.4.dev", "8.5.dev", "dev"]
-  "extra-dev" => []
+  ],
+  "extra-dev" => [
+    "8.0.dev",
+    "8.1.dev",
+    "8.2.dev",
+    "8.3.dev",
+    "8.4.dev",
+    "8.5.dev",
+    "8.6.dev",
+    "8.7.dev",
+    "8.8.dev",
+    "8.9.1",
+    "8.9.dev",
+    "8.10.0",
+    "8.10.dev",
+    "dev"
+  ]
 }
 
 configurations = []
@@ -63,8 +72,11 @@ while true do
     system("opam switch create ocaml-base-compiler.#{ocaml}")
     # Add the repositories.
     system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
-    # We disable the core-dev repo to check that packages can be installed with at least one stable version of Coq.
-    # system("opam repo add core-dev opam-coq-archive/core-dev")
+    # We do not enable the core-dev repository for stable packages to check that packages can be installed
+    # with at least one stable version of Coq.
+    if repository != "extra-dev" then
+      system("opam repo add core-dev opam-coq-archive/core-dev")
+    end
     # Install Coq.
     Process.waitall
     if system("opam install -y coq.#{coq}") then
