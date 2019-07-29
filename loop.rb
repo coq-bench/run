@@ -74,7 +74,7 @@ while true do
     system("rm -Rf opam-coq-archive && git clone https://github.com/coq/opam-coq-archive.git")
     # We do not enable the core-dev repository for stable packages to check that packages can be installed
     # with at least one stable version of Coq.
-    if repository != "extra-dev" then
+    if repository != "released" then
       system("opam repo add core-dev opam-coq-archive/core-dev")
     end
     # Install Coq.
