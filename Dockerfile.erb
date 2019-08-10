@@ -69,8 +69,8 @@ RUN mkdir ~/.ssh && cp id_rsa ~/.ssh/ && chmod 400 ~/.ssh/id_rsa && cp ssh_confi
 
 # Get the HTML.
 WORKDIR /home/bench
-RUN curl -L https://github.com/coq-bench/make-html/archive/master.tar.gz |tar -xz
-WORKDIR make-html-master
+RUN git clone git@github.com:coq-bench/make-html.git
+WORKDIR make-html
 RUN git clone git@github.com:coq-bench/coq-bench.github.io.git html
 
 # Start.
