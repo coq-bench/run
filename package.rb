@@ -15,6 +15,10 @@ class Package
     "#{@name}.#{@version}"
   end
 
+  def coq_version
+    `opam info --field=version coq`.strip
+  end
+
   def path
     "opam-coq-archive/#{@repository}/packages/#{name}/#{name}.#{version}"
   end
@@ -26,7 +30,6 @@ class Package
   end
 
   def dry_install_with_coq
-    coq_version = `opam info --field=version coq`.strip
     run(["opam", "install", "-y", "--show-action", to_s, "coq.#{coq_version}"])
   end
 
@@ -50,7 +53,7 @@ class Package
       "coq-pi-agm"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "60m"
-    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s}"])
+    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"])
   end
 
   # Install the package.
@@ -68,7 +71,7 @@ class Package
       "coq-vst"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "60m"
-    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s}"])
+    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s} coq.#{coq_version}"])
   end
 
   # Remove the package.
