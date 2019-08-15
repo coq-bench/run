@@ -4,9 +4,6 @@ require_relative 'package'
 module Opam
   # The list of all Coq packages in the given repositories.
   def Opam.all_packages(repositories)
-    black_list = [
-      "coq-intuitionistic-nuprl" # because it is extremely slow
-    ]
     repositories.map do |repository|
       Dir.glob("opam-coq-archive/#{repository}/packages/*/coq-*").map do |path|
         name, version = File.basename(path).split(".", 2)
@@ -14,7 +11,6 @@ module Opam
       end
     end
       .flatten(1)
-      .select {|x| !black_list.include?(x.name)}
       .sort {|x, y| x.to_s <=> y.to_s}
       .reverse
     # [Package.new("stable", "coq-ssreflect", "1.5.0")]
