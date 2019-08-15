@@ -71,7 +71,7 @@ class Package
       "coq-vst"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "60m"
-    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s} coq.#{coq_version}"])
+    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y #{to_s} coq.#{coq_version}"])
   end
 
   # Remove the package.
