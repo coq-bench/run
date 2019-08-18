@@ -64,6 +64,7 @@ class Package
       "coq-compcert",
       "coq-corn",
       "coq-geocoq",
+      "coq-intuitionistic-nuprl",
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
@@ -71,7 +72,10 @@ class Package
       "coq-vst"
     ]
     timeout = slow_packages.include?(@name) ? "300m" : "60m"
-    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -j1 -y -v #{to_s} coq.#{coq_version}"])
+    run([
+      "opam list; echo; ulimit -Sv 4000000; " +
+      "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
+    ])
   end
 
   # Remove the package.
