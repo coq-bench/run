@@ -58,20 +58,22 @@ class Package
 
   # Install the package.
   def install
+    very_slow_packages = [
+      "coq-intuitionistic-nuprl"
+    ]
     slow_packages = [
       "coq-areamethod",
       "coq-color",
       "coq-compcert",
       "coq-corn",
       "coq-geocoq",
-      "coq-intuitionistic-nuprl",
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
       "coq-qcert",
       "coq-vst"
     ]
-    timeout = slow_packages.include?(@name) ? "300m" : "60m"
+    timeout = very_slow_packages.include?(@name) ? "10h" : slow_packages.include?(@name) ? "2h" : "1h"
     run([
       "opam list; echo; ulimit -Sv 4000000; " +
       "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
