@@ -101,8 +101,7 @@ private
   def run(command)
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
-    # 124 is the timeout status.
-    output = "" if status.to_i == 0 || status.to_i == 124
+    output = "" if status.to_i == 0
     max_characters = 100_000
     if output.size > max_characters then
       output = "#{output[0..(max_characters - 1)]}\n[...]\nTruncated (maximum #{max_characters})\n"
