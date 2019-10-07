@@ -104,7 +104,7 @@ private
     output = "" if status.to_i == 0
     max_characters = 100_000
     if output.size > max_characters then
-      output = "#{output[0..(max_characters - 1)]}\n[...]\nTruncated (maximum #{max_characters})\n"
+      output = "#{output[0..(max_characters - 1)]}\n[...]\nTruncated (maximum #{max_characters} characters)\n"
     end
     duration = (Time.now - starting_time).to_i
     [command.join(" "), status.to_i, duration, output]
