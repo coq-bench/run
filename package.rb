@@ -53,6 +53,7 @@ class Package
       "coq-compcert",
       "coq-corn",
       "coq-geocoq",
+      "coq-geocoq-main",
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
