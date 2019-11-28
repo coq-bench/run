@@ -9,7 +9,7 @@ RUN apt-get install -y aspcud mercurial
 RUN apt-get install -y g++ coinor-csdp
 RUN apt-get install -y unzip liblablgtk-extras-ocaml-dev
 RUN apt-get install -y autoconf perl rsync
-RUN apt-get install -y bubblewrap
+RUN apt-get install -y bubblewrap libgmp-dev
 
 # Bench user
 RUN useradd --create-home bench
