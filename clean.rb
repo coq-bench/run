@@ -7,7 +7,10 @@ require_relative 'package'
 
 class Run
   def initialize(packages)
-    @packages = packages
+    # We shuffle the packages in order to limit the black-listing from GitHub,
+    # if any. Indeed, packages with similar names tend to need to download the
+    # same dependency.
+    @packages = packages.shuffle
     @results = []
   end
 
