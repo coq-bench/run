@@ -53,6 +53,7 @@ USER bench
 
 # Initialize OPAM.
 ENV OPAMJOBS <%= jobs %>
+ENV OPAMSOLVERTIMEOUT 600
 
 # Initialize Git
 RUN git config --global user.email "bench@ben.ch" && git config --global user.name "Bench B. Bench" && git config --global push.default simple
