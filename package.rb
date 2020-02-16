@@ -60,9 +60,9 @@ class Package
       "coq-qcert",
       "coq-vst"
     ]
-    timeout = very_slow_packages.include?(@name) ? "10h" : (slow_packages.include?(@name) ? "2h" : "1h")
+    timeout = very_slow_packages.include?(@name) ? "10h" : (slow_packages.include?(@name) ? "4h" : "2h")
     run([
-      "opam list; echo; ulimit -Sv 4000000; " +
+      "opam list; echo; ulimit -Sv 16000000; " +
       "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
     ])
   end
