@@ -89,10 +89,9 @@ private
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
     output = "" if status.to_i == 0
-    output_lines = output.split("\n")
-    max_lines = 1_000
-    if output_lines.size > max_lines then
-      output = "#{output_lines[0..(max_lines / 2 - 1)].join("\n")}\n\n[...] truncated\n\n#{output_lines[- (max_lines / 2)..-1].join("\n")}\n\nThe middle of the output is truncated (maximum #{max_lines} lines)\n"
+    max_characters = 20_000
+    if output.size > max_characters then
+      output = "#{output[0..(max_characters / 2 - 1)]}\n\n[...] truncated\n\n#{output[- (max_characters / 2)..-1]}\n\nThe middle of the output is truncated (maximum #{max_characters} characters)\n"
     end
     duration = (Time.now - starting_time).to_i
     [command.join(" "), status.to_i, duration, output]
