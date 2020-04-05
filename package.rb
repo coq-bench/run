@@ -49,6 +49,7 @@ class Package
     ]
     slow_packages = [
       "coq-areamethod",
+      "coq-ceramist",
       "coq-color",
       "coq-compcert",
       "coq-corn",
