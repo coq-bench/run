@@ -90,6 +90,7 @@ private
     starting_time = Time.now
     output, status = Open3.capture2e(*command)
     output = "" if status.to_i == 0
+    output = output.force_encoding(Encoding::UTF_8)
     max_characters = 20_000
     if output.size > max_characters then
       output = "#{output[0..(max_characters / 2 - 1)]}\n\n[...] truncated\n\n#{output[- (max_characters / 2)..-1]}\n\nThe middle of the output is truncated (maximum #{max_characters} characters)\n"
