@@ -40,7 +40,8 @@ class Package
   # Install the dependencies of the package.
   def install_dependencies
     slow_packages = [
-      "coq-geocoq"
+      "coq-geocoq",
+      "coq-geocoq-pof"
     ]
     timeout = slow_packages.include?(@name) ? "4h" : "2h"
     run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"])
