@@ -1,4 +1,4 @@
-# Handle OPAM actions on a package.
+# Handle opam actions on a package.
 require 'json'
 require 'open3'
 
@@ -23,18 +23,17 @@ class Package
     "opam-coq-archive/#{@repository}/packages/#{name}/#{name}.#{version}"
   end
 
+  # Disabled since opam 2.
   def lint
-    # We temporarily disable the linter for OPAM 2.
-    #run(["ruby", "lint.rb", @repository, path])
-    run(["true"])
+    run("true")
   end
 
   def dry_install_with_coq
-    run(["opam", "install", "-y", "--show-action", to_s, "coq.#{coq_version}"])
+    run("opam install -y --show-action #{to_s} coq.#{coq_version}")
   end
 
   def dry_install_without_coq
-    run(["opam remove -y coq; opam install -y --show-action --unlock-base #{to_s}"])
+    run("opam remove -y coq; opam install -y --show-action --unlock-base #{to_s}")
   end
 
   # Install the dependencies of the package.
@@ -44,7 +43,10 @@ class Package
       "coq-geocoq-pof"
     ]
     timeout = slow_packages.include?(@name) ? "4h" : "2h"
-    run(["opam list; echo; ulimit -Sv 4000000; timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"])
+    run(
+      "opam list; echo; ulimit -Sv 4000000; " +
+      "timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"
+    )
   end
 
   # Install the package.
@@ -67,25 +69,25 @@ class Package
       "coq-vst"
     ]
     timeout = very_slow_packages.include?(@name) ? "10h" : (slow_packages.include?(@name) ? "4h" : "2h")
-    run([
+    run(
       "opam list; echo; ulimit -Sv 16000000; " +
       "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
-    ])
+    )
   end
 
   # Remove the package.
   def remove
-    run(["opam", "remove", "-y", to_s])
+    run("opam remove -y #{to_s}")
   end
 
   # Run a dummy command.
   def dummy
-    run(["true"])
+    run("true")
   end
 
   # Fail with an error message.
   def fail(message)
-    run(["echo #{message}; false"])
+    run("echo #{message}; false")
   end
 
 private
@@ -93,7 +95,7 @@ private
   # empty output on success.
   def run(command)
     starting_time = Time.now
-    output, status = Open3.capture2e(*command)
+    output, status = Open3.capture2e("bash", "-c", command)
     output = "" if status.to_i == 0
     output = output.force_encoding(Encoding::UTF_8)
     max_characters = 20_000
@@ -101,6 +103,6 @@ private
       output = "#{output[0..(max_characters / 2 - 1)]}\n\n[...] truncated\n\n#{output[- (max_characters / 2)..-1]}\n\nThe middle of the output is truncated (maximum #{max_characters} characters)\n"
     end
     duration = (Time.now - starting_time).to_i
-    [command.join(" "), status.to_i, duration, output]
+    [command, status.to_i, duration, output]
   end
 end
