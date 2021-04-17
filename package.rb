@@ -42,7 +42,7 @@ class Package
       "coq-geocoq",
       "coq-geocoq-pof"
     ]
-    timeout = slow_packages.include?(@name) ? "4h" : "2h"
+    timeout = slow_packages.include?(@name) ? "8h" : "4h"
     run(
       "opam list; echo; ulimit -Sv 4000000; " +
       "timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"
@@ -52,7 +52,8 @@ class Package
   # Install the package.
   def install
     very_slow_packages = [
-      "coq-intuitionistic-nuprl"
+      "coq-intuitionistic-nuprl",
+      "coq-vst"
     ]
     slow_packages = [
       "coq-areamethod",
@@ -65,10 +66,9 @@ class Package
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
-      "coq-qcert",
-      "coq-vst"
+      "coq-qcert"
     ]
-    timeout = very_slow_packages.include?(@name) ? "10h" : (slow_packages.include?(@name) ? "4h" : "2h")
+    timeout = very_slow_packages.include?(@name) ? "20h" : (slow_packages.include?(@name) ? "8h" : "4h")
     run(
       "opam list; echo; ulimit -Sv 16000000; " +
       "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
