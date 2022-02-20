@@ -66,7 +66,8 @@ class Package
       "coq-iris",
       "coq-mathcomp-field",
       "coq-mathcomp-odd-order",
-      "coq-qcert"
+      "coq-qcert",
+      "coq-unimath"
     ]
     timeout = very_slow_packages.include?(@name) ? "20h" : (slow_packages.include?(@name) ? "8h" : "4h")
     run(
