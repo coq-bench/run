@@ -23,6 +23,7 @@ class Run
       # Display the package name.
       puts
       puts "\e[1;34m#{index}/#{@packages.size} #{package.name} #{package.version}:\e[0m"
+      puts Time.now
 
       # Copy the `~/.opam_backup` folder to `~/.opam`.
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
