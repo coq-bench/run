@@ -16,11 +16,13 @@ class Run
 
   # Bench the packages.
   def bench
+    index = 0
     for package in @packages do
     # for package in [Package.new("stable", "coq-function-ninjas", "1.0.0")] do
+      index += 1
       # Display the package name.
       puts
-      puts "\e[1;34m#{package.name} #{package.version}:\e[0m"
+      puts "\e[1;34m#{index}/#{@packages.size} #{package.name} #{package.version}:\e[0m"
 
       # Copy the `~/.opam_backup` folder to `~/.opam`.
       system("rsync -a --delete ~/.opam_backup/ ~/.opam")
