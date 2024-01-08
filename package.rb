@@ -44,7 +44,7 @@ class Package
     ]
     timeout = slow_packages.include?(@name) ? "8h" : "4h"
     run(
-      "opam list; echo; ulimit -Sv 4000000; " +
+      "opam list; echo; " +
       "timeout #{timeout} opam install -y --deps-only #{to_s} coq.#{coq_version}"
     )
   end
@@ -71,7 +71,7 @@ class Package
     ]
     timeout = very_slow_packages.include?(@name) ? "20h" : (slow_packages.include?(@name) ? "8h" : "4h")
     run(
-      "opam list; echo; ulimit -Sv 16000000; " +
+      "opam list; echo; " +
       "timeout #{timeout} opam install -y#{@repository == "released" ? " -v" : ""} #{to_s} coq.#{coq_version}"
     )
   end
